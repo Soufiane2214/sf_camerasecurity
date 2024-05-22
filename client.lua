@@ -1350,9 +1350,3 @@ end)
 -- KEY BINDS
 RegisterKeyMapping("exitcamera", "Exit Camera", "keyboard", "BACK") 
 RegisterCommand('exitcamera', ExitCamera, false)   
-
--- test Commands 
---[[ RegisterCommand("getcameras", function()
-    TriggerEvent('sf_camerasecurity:Client:OpenStaticCams')
-end)
- ]]
