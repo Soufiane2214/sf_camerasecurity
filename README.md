@@ -121,10 +121,7 @@ vpn = {name = 'vpn', label = 'VPN Router', weight = 1000, type = 'item', image =
 ['vpn'] = {
 	label = 'VPN Router',
 	weight = 1000,
-	stack = false,
-	client = {
-		image = 'vpn.png',
-	}	
+	stack = false
 },
 ```
 ### This item comming default in qb-core check before add please
