@@ -29,8 +29,13 @@ camera_paper = { name = 'camera_paper', label = 'Camera Signal Paper', weight = 
 camera_tablet = { name = 'camera_tablet', label = 'CamView Tablet', weight = 2000, type = 'item', image = 'camera_tablet.png', unique = true, useable = true, shouldClose = true, combinable = nil, description = '' },
 vpn = {name = 'vpn', label = 'VPN Router', weight = 1000, type = 'item', image = 'vpn.png', unique = true, useable = false, shouldClose = false, combinable = nil, description = ''},
 ```
-**This item comming default in qb-core check before add please**
+### This item comming default in qb-core check before add please
 ```language
 screwdriverset               = { name = 'screwdriverset', label = 'Toolkit', weight = 1000, type = 'item', image = 'screwdriverset.png', unique = false, useable = false, shouldClose = false, combinable = nil, description = 'Very useful to screw... screws...' },
+```
+### If you are use qb-inventory go this file `qb-inventory/html/js/app.js` and go line 343 and add this code
+```language
+case "camera_paper":
+      return `<p><strong>Camera Signal: </strong><span>${itemData.info.signal}</span>`;
 ```
 - Final step check the **config.lua** if you want modify some config.
