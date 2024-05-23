@@ -1,5 +1,6 @@
 Config = Config or {}
 
+Config.Inventory = 'qb-inventory'       -- ox_inventory / qb-inventory
 Config.SignalLength = 12   -- how much characters and numbers in signal 
 Config.MoveCamForwardDistance = 0.2     -- this only move camera coords to forward because some times big cam props hide the vision
 Config.ImageLinkInventory = "nui://qb-inventory/html/images/"  -- location images inventory
