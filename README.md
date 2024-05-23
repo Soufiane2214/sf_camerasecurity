@@ -18,7 +18,9 @@ For all support questions, ask in our [Discord](https://discord.gg/WQNGvFY8) sup
 - SQL Automatic added to your database no need to add manually.
 - add images from folder **(install/item-images)** to **(qb-inventory/html/images)**.
 
-### Add Items to **(qb-core/shared/items.lua)**
+
+### qb-inventory
+#### Add Items to **(qb-core/shared/items.lua)**
 ```language
 -- // Cameras
 camera_pd = {name = 'camera_pd', label = 'PD Camera', weight = 3000,	type = 'item', image = 'camera_pd.png',	unique = true, useable = true, shouldClose = true, combinable = nil, description = ''},
@@ -28,6 +30,102 @@ camera_viewer = { name = 'camera_viewer', label = 'Camera Viewer', weight = 1000
 camera_paper = { name = 'camera_paper', label = 'Camera Signal Paper', weight = 200, type = 'item', image = 'camera_paper.png', unique = true, useable = true, shouldClose = true, combinable = nil, description = '' },
 camera_tablet = { name = 'camera_tablet', label = 'CamView Tablet', weight = 2000, type = 'item', image = 'camera_tablet.png', unique = true, useable = true, shouldClose = true, combinable = nil, description = '' },
 vpn = {name = 'vpn', label = 'VPN Router', weight = 1000, type = 'item', image = 'vpn.png', unique = true, useable = false, shouldClose = false, combinable = nil, description = ''},
+```
+### ox_inventory
+#### Add Items to **(ox_inventory/data/items.lua)**
+```language
+['camera_pd'] = {
+	label = 'PD Camera',
+	weight = 3000,
+	stack = false,
+	close = true,
+	consume = 0,
+	server = {
+		export = 'sf_camerasecurity.cam_camera_pd'
+	},
+	client = {
+		image = 'camera_pd.png',
+	}	
+},
+
+['camera_ems'] = {
+	label = 'EMS Camera',
+	weight = 3000,
+	stack = false,
+	close = true,
+	consume = 0,
+	server = {
+		export = 'sf_camerasecurity.cam_camera_ems'
+	},
+	client = {
+		image = 'camera_ems.png',
+	}	
+},
+
+['camera_citizen'] = {
+	label = 'Camera',
+	weight = 3000,
+	stack = false,
+	close = true,
+	consume = 0,
+	server = {
+		export = 'sf_camerasecurity.cam_camera_citizen'
+	},
+	client = {
+		image = 'camera_citizen.png',
+	}	
+},
+
+['camera_viewer'] = {
+	label = 'Camera Viewer',
+	weight = 1000,
+	stack = false,
+	close = true,
+	consume = 0,
+	server = {
+		export = 'sf_camerasecurity.cam_camera_viewer'
+	},
+	client = {
+		image = 'camera_viewer.png',
+	}	
+},
+
+['camera_paper'] = {
+	label = 'Camera Signal Paper',
+	weight = 200,
+	stack = false,
+	close = true,
+	consume = 0,
+	server = {
+		export = 'sf_camerasecurity.cam_camera_paper'
+	},
+	client = {
+		image = 'camera_paper.png',
+	}	
+},
+
+['camera_tablet'] = {
+	label = 'CamView Tablet',
+	weight = 2000,
+	stack = false,
+	close = true,
+	consume = 0,
+	server = {
+		export = 'sf_camerasecurity.cam_camera_tablet'
+	},
+	client = {
+		image = 'camera_tablet.png',
+	}	
+},
+
+['vpn'] = {
+	label = 'VPN Router',
+	weight = 1000,
+	stack = false,
+	client = {
+		image = 'vpn.png',
+	}	
+},
 ```
 ### This item comming default in qb-core check before add please
 ```language
