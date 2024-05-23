@@ -147,12 +147,12 @@ RegisterNetEvent('sf_camerasecurity:Client:CreateNewCamera',function(Type, Job, 
     if Type == 'Job' then
         CurrentJob = Job
         CurrentType = Type
-        CurrentItem = Item.name
+        CurrentItem = Item
         Active = true
         StartLineCreate(Type)     
     elseif Type == 'Signal' then
         CurrentType = Type
-        CurrentItem = Item.name
+        CurrentItem = Item
         Active = true
         StartLineCreate(Type) 
     end  
@@ -167,7 +167,7 @@ RegisterNetEvent('sf_camerasecurity:Client:ConnectCamBySignal',function()
         local WifiZone, NotGoodConnect = InWifiZone()
         if not WifiZone and not Config.DisableWifiSystem then  
             InAnim = false return QBCore.Functions.Notify('No wifi in this zone', 'error', 5000) 
-        elseif not QBCore.Functions.HasItem(Config.VpnItem) then 
+        elseif not hasItem(Config.VpnItem) then 
             InAnim = false return QBCore.Functions.Notify('Need vpn to Connect wifi', 'error', 5000) 
         end
         if NotGoodConnect and not Config.DisableWifiSystem then InAnim = false return QBCore.Functions.Notify('Low reseau wifi', 'error', 5000) end
@@ -310,7 +310,7 @@ RegisterNetEvent('sf_camerasecurity:Client:OpenStaticCams',function()
                                         local CamCoords = json.decode(v.coords)                                       
                                         local Dist = #(pCoords - vector3(CamCoords.x, CamCoords.y, CamCoords.z)) 
                                         if Dist <= Settings.DistanceRemove + 1 then
-                                            if QBCore.Functions.HasItem(Config.NeedItemFixCam) then
+                                            if hasItem(Config.NeedItemFixCam) then
                                                 TriggerEvent('sf_camerasecurity:Client:LiserFixCam', TabletObj, CamCoords, 7000)
                                                 QBCore.Functions.Progressbar("Camera_Repairing", "Repairing....", 7000, false, false, {
                                                     disableMovement = true,
@@ -1131,7 +1131,7 @@ function PlaceCam(Data)
                             Broken = 0, IP = GenerateRandomIPv4(), DistanceRemove = #(CurrentPlayerCoordDistance - coords)
                         }
                         DeleteEntity(spyCam)
-                        local RecheckItem = QBCore.Functions.HasItem(CurrentItem)
+                        local RecheckItem = hasItem(CurrentItem)
                         if RecheckItem then
                             TriggerServerEvent('sf_camerasecurity:Server:SaveNewCam', Input[1], json.encode(Setting), json.encode(coords), json.encode(cameraRotation), CurrentItem)
                         else
@@ -1148,7 +1148,7 @@ function PlaceCam(Data)
                             Broken = 0, IP = GenerateRandomIPv4(), DistanceRemove = #(CurrentPlayerCoordDistance - coords)
                         }
                         DeleteEntity(spyCam)
-                        local RecheckItem = QBCore.Functions.HasItem(CurrentItem)
+                        local RecheckItem = hasItem(CurrentItem)
                         if RecheckItem then
                             TriggerServerEvent('sf_camerasecurity:Server:SaveNewCam', Input[1], json.encode(Setting), json.encode(coords), json.encode(cameraRotation), CurrentItem, Setting.Signal)
                         else
@@ -1178,6 +1178,14 @@ function BrokeCamera(id)
     return Citizen.Await(p)
 end
 
+function hasItem(item)
+    local p = promise.new()
+    QBCore.Functions.TriggerCallback('sf_camerasecurity:Server:HasItem', function(result)
+        p:resolve(result)
+    end, item)
+    return Citizen.Await(p)
+end
+
 function CheckJob(job)
     if not job then return true end
     if type(job) == 'table' then
@@ -1198,6 +1206,7 @@ function OpenShop()
 
     for k,v in ipairs(Config.Shop.Store) do
         if CheckJob(v.job) then
+            print(v.item)
             local img = Config.ImageLinkInventory..QBCore.Shared.Items[v.item].image
             menu[#menu +1] = {
                 title = QBCore.Shared.Items[v.item].label,
@@ -1345,6 +1354,12 @@ CreateThread(function()
             }
         })
     end 
+
+    if Config.Inventory == 'ox_inventory' then
+        exports.ox_inventory:displayMetadata({
+            signal = 'Camera Signal'
+        })
+    end   
 end)
 
 -- KEY BINDS
