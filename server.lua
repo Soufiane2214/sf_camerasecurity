@@ -59,8 +59,12 @@ RegisterNetEvent('sf_camerasecurity:Server:SaveNewCam',function(name, setting, c
         name, setting, coords, rot
     }, function(id)
         StoredCams[#StoredCams+1] = {name = name, setting = setting, coords = coords, rot = rot, id = id}
-        Player.Functions.RemoveItem(item, 1)
-        TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[item], "remove", 1)
+        if Config.Inventory == 'qb-inventory' then
+            Player.Functions.RemoveItem(item, 1)
+            TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[item], "remove", 1)
+        elseif Config.Inventory == 'ox_inventory' then
+            exports.ox_inventory:RemoveItem(src, item, 1)
+        end
         local UncodedSetting = json.decode(setting)
         if tonumber(UncodedSetting.ShowProp) == 1 then
             TriggerClientEvent('sf_camerasecurity:Client:LoadPropCamera', -1, UncodedSetting.Prop, UncodedSetting.PropCoords.Coords, UncodedSetting.PropCoords.Rotation, id, true)
@@ -70,8 +74,12 @@ RegisterNetEvent('sf_camerasecurity:Server:SaveNewCam',function(name, setting, c
         if UncodedSetting.Type == 'Signal' then
             SetTimeout(2000, function()
                 local info = {signal = signalcode}
-                Player.Functions.AddItem(Config.CameraSignalPaper, 1, false, info)
-                TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.CameraSignalPaper], "add", 1)                   
+                if Config.Inventory == 'qb-inventory' then
+                    Player.Functions.AddItem(Config.CameraSignalPaper, 1, false, info)
+                    TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.CameraSignalPaper], "add", 1)   
+                elseif Config.Inventory == 'ox_inventory' then
+                    exports.ox_inventory:AddItem(src, Config.CameraSignalPaper, 1, info)
+                end                        
             end)   
         end     
         QBCore.Functions.Notify(src, 'Camera Added Successfully', 'success', 5000)  
@@ -94,8 +102,12 @@ RegisterNetEvent('sf_camerasecurity:Server:RemoveStaticCam',function(id)
                             for t,p in pairs(s.Job) do
                                 if m == p then
                                     SetTimeout(2000, function()
-                                        Player.Functions.AddItem(s.ItemName, 1)
-                                        TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[s.ItemName], "add", 1)
+                                        if Config.Inventory == 'qb-inventory' then
+                                            Player.Functions.AddItem(s.ItemName, 1)
+                                            TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[s.ItemName], "add", 1)   
+                                        elseif Config.Inventory == 'ox_inventory' then
+                                            exports.ox_inventory:AddItem(src, s.ItemName, 1)
+                                        end                                  
                                     end) 
                                     loopbreak = true
                                     break
@@ -108,8 +120,12 @@ RegisterNetEvent('sf_camerasecurity:Server:RemoveStaticCam',function(id)
                         for n,m in pairs(Setting.Job) do
                             if s.Job == m then
                                 SetTimeout(2000, function()
-                                    Player.Functions.AddItem(s.ItemName, 1)
-                                    TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[s.ItemName], "add", 1)
+                                    if Config.Inventory == 'qb-inventory' then
+                                        Player.Functions.AddItem(s.ItemName, 1)
+                                        TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[s.ItemName], "add", 1)
+                                    elseif Config.Inventory == 'ox_inventory' then
+                                        exports.ox_inventory:AddItem(src, s.ItemName, 1)
+                                    end               
                                 end)    
                             end
                         end            
@@ -117,8 +133,12 @@ RegisterNetEvent('sf_camerasecurity:Server:RemoveStaticCam',function(id)
                 end
             elseif Setting.Type == 'Signal' then
                 SetTimeout(2000, function()
-                    Player.Functions.AddItem(Config.SignalItem.ItemName, 1)
-                    TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.SignalItem.ItemName], "add", 1)
+                    if Config.Inventory == 'qb-inventory' then
+                        Player.Functions.AddItem(Config.SignalItem.ItemName, 1)
+                        TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[Config.SignalItem.ItemName], "add", 1)
+                    elseif Config.Inventory == 'ox_inventory' then
+                        exports.ox_inventory:AddItem(src, Config.SignalItem.ItemName, 1)
+                    end                
                 end)        
             end
             StoredCams[k] = nil 
@@ -142,10 +162,13 @@ RegisterNetEvent('sf_camerasecurity:Server:BuyItem',function(typePay, price, ite
     
     if Player.PlayerData.money[typePay] >= price then
         if Player.Functions.RemoveMoney(typePay, price) then
-            Player.Functions.AddItem(item, amountItem)
-            TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[item], "add", amountItem)
+            if Config.Inventory == 'qb-inventory' then
+                Player.Functions.AddItem(item, amountItem)
+                TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[item], "add", amountItem)
+            elseif Config.Inventory == 'ox_inventory' then
+                exports.ox_inventory:AddItem(src, item, amountItem)
+            end       
         end       
-
         QBCore.Functions.Notify(source, '('..QBCore.Shared.Items[item].label..') bought successfully', 'success')
     else
         QBCore.Functions.Notify(source, 'No enough money', 'error')
@@ -155,6 +178,22 @@ end)
 -- CallBacks
 QBCore.Functions.CreateCallback('sf_camerasecurity:Server:GetStaticCams', function(source, cb)
     cb(StoredCams)
+end)
+
+QBCore.Functions.CreateCallback('sf_camerasecurity:Server:HasItem', function(source, cb, item)
+    if Config.Inventory == 'qb-inventory' then
+        local Player = QBCore.Functions.GetPlayer(source)
+        if Player then
+            cb(Player.Functions.GetItemByName(item))
+            return
+        else
+            cb(nil)
+            return
+        end     
+    elseif Config.Inventory == 'ox_inventory' then        
+        cb(exports.ox_inventory:GetSlotWithItem(source, item))
+        return
+    end
 end)
 
 QBCore.Functions.CreateCallback('sf_camerasecurity:Server:BrokeCamera', function(source, cb, id)
@@ -190,53 +229,108 @@ QBCore.Functions.CreateCallback('sf_camerasecurity:Server:BrokeCamera', function
 end)
 
 -- Usables
-QBCore.Functions.CreateUseableItem(Config.RemoteTablet, function(source, item)
-    local src = source
-    TriggerClientEvent('sf_camerasecurity:Client:ConnectCamBySignal', src)
-end)
-
-QBCore.Functions.CreateUseableItem(Config.TabletCamViewJobs, function(source, item)
-    local src = source
-    TriggerClientEvent('sf_camerasecurity:Client:OpenStaticCams', src)
-end)
-
-QBCore.Functions.CreateUseableItem(Config.CameraSignalPaper, function(source, item)
-    local src = source
-    TriggerClientEvent('sf_camerasecurity:Client:GetSignalPaper', src, item.info.signal)
-end)
-
-QBCore.Functions.CreateUseableItem(Config.SignalItem.NameItem, function(source, item)
-    local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
-    if not Player then return end
-    TriggerClientEvent('sf_camerasecurity:Client:CreateNewCamera', src, Config.SignalItem.Type, false, item)
-end)
-
--- Camera Job Items 
-for k,v in pairs(Config.JobItems) do
-    QBCore.Functions.CreateUseableItem(v.ItemName, function(source, item)
-        local src = source
-        local Player = QBCore.Functions.GetPlayer(src)
-        if not Player then return end
-        if v.Type == 'Job' then
-            if type(v.Job) == "table" then
-                local HaveJob = false
-                for i,t in pairs(v.Job) do if Player.PlayerData.job.name == t then HaveJob = true break end end          
-                if HaveJob then              
-                    TriggerClientEvent('sf_camerasecurity:Client:CreateNewCamera', src, v.Type, v.Job, item)
-                else
-                    QBCore.Functions.Notify(src, "Not have authorization to this camera", "error", 3500)
+CreateThread(function()
+    if Config.Inventory == 'ox_inventory' then
+        exports('cam_'..Config.RemoteTablet, function(event, item, inventory, slot, data)
+            if event == 'usingItem' then
+                TriggerClientEvent('sf_camerasecurity:Client:ConnectCamBySignal', inventory.id)
+            end
+        end)
+        exports('cam_'..Config.TabletCamViewJobs, function(event, item, inventory, slot, data)
+            if event == 'usingItem' then
+                TriggerClientEvent('sf_camerasecurity:Client:OpenStaticCams', inventory.id)
+            end
+        end)
+        exports('cam_'..Config.CameraSignalPaper, function(event, item, inventory, slot, data)
+            if event == 'usingItem' then
+                local itemSlot = exports.ox_inventory:GetSlot(inventory.id, slot)
+                TriggerClientEvent('sf_camerasecurity:Client:GetSignalPaper', inventory.id, itemSlot.metadata.signal)
+            end
+        end)
+        exports('cam_'..Config.SignalItem.NameItem, function(event, item, inventory, slot, data)
+            if event == 'usingItem' then
+                local itemSlot = exports.ox_inventory:GetSlot(inventory.id, slot)
+                TriggerClientEvent('sf_camerasecurity:Client:CreateNewCamera', inventory.id, Config.SignalItem.Type, false, itemSlot.name)
+            end
+        end)
+    
+        -- Camera Job Items 
+        for k,v in pairs(Config.JobItems) do
+            exports('cam_'..v.ItemName, function(event, item, inventory, slot, data)
+                if event == 'usingItem' then
+                    local src = inventory.id           
+                    local Player = QBCore.Functions.GetPlayer(src)
+                    if not Player then return end
+                    local itemSlot = exports.ox_inventory:GetSlot(inventory.id, slot)
+                    if v.Type == 'Job' then
+                        if type(v.Job) == "table" then
+                            local HaveJob = false
+                            for i,t in pairs(v.Job) do if Player.PlayerData.job.name == t then HaveJob = true break end end          
+                            if HaveJob then              
+                                TriggerClientEvent('sf_camerasecurity:Client:CreateNewCamera', src, v.Type, v.Job, itemSlot.name)
+                            else
+                                QBCore.Functions.Notify(src, "Not have authorization to this camera", "error", 3500)
+                            end
+                        else
+                            if Player.PlayerData.job.name == v.Job then
+                                TriggerClientEvent('sf_camerasecurity:Client:CreateNewCamera', src, v.Type, v.Job, itemSlot.name)
+                            else
+                                QBCore.Functions.Notify(src, "Not have authorization to this camera", "error", 3500)
+                            end
+                        end           
+                    end
                 end
-            else
-                if Player.PlayerData.job.name == v.Job then
-                    TriggerClientEvent('sf_camerasecurity:Client:CreateNewCamera', src, v.Type, v.Job, item)
-                else
-                    QBCore.Functions.Notify(src, "Not have authorization to this camera", "error", 3500)
-                end
-            end           
-        end     
-    end)
-end
+            end)
+        end
+    elseif Config.Inventory == 'qb-inventory' then
+        QBCore.Functions.CreateUseableItem(Config.RemoteTablet, function(source, item)
+            local src = source
+            TriggerClientEvent('sf_camerasecurity:Client:ConnectCamBySignal', src)
+        end)
+        
+        QBCore.Functions.CreateUseableItem(Config.TabletCamViewJobs, function(source, item)
+            local src = source
+            TriggerClientEvent('sf_camerasecurity:Client:OpenStaticCams', src)
+        end)
+        
+        QBCore.Functions.CreateUseableItem(Config.CameraSignalPaper, function(source, item)
+            local src = source
+            TriggerClientEvent('sf_camerasecurity:Client:GetSignalPaper', src, item.info.signal)
+        end)
+        
+        QBCore.Functions.CreateUseableItem(Config.SignalItem.NameItem, function(source, item)
+            local src = source
+            TriggerClientEvent('sf_camerasecurity:Client:CreateNewCamera', src, Config.SignalItem.Type, false, item.name)
+        end)
+        
+        -- Camera Job Items 
+        for k,v in pairs(Config.JobItems) do
+            QBCore.Functions.CreateUseableItem(v.ItemName, function(source, item)
+                local src = source
+                local Player = QBCore.Functions.GetPlayer(src)
+                if not Player then return end
+                if v.Type == 'Job' then
+                    if type(v.Job) == "table" then
+                        local HaveJob = false
+                        for i,t in pairs(v.Job) do if Player.PlayerData.job.name == t then HaveJob = true break end end          
+                        if HaveJob then              
+                            TriggerClientEvent('sf_camerasecurity:Client:CreateNewCamera', src, v.Type, v.Job, item.name)
+                        else
+                            QBCore.Functions.Notify(src, "Not have authorization to this camera", "error", 3500)
+                        end
+                    else
+                        if Player.PlayerData.job.name == v.Job then
+                            TriggerClientEvent('sf_camerasecurity:Client:CreateNewCamera', src, v.Type, v.Job, item.name)
+                        else
+                            QBCore.Functions.Notify(src, "Not have authorization to this camera", "error", 3500)
+                        end
+                    end           
+                end     
+            end)
+        end
+    end
+end)
+
 
 -- Alert Errors
 RegisterNetEvent('sf_camerasecurity:Server:ErrorSendAlert',function(msg)
