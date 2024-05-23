@@ -1,3 +1,6 @@
+# We have a goal to complete 1000 member in discord.
+# [Join Discord](https://discord.gg/WQNGvFY8)
+
 # SF Camera Security
 For all support questions, ask in our [Discord](https://discord.gg/WQNGvFY8) support chat. Do not create issues if you need help. Issues are for bug reporting and new features only.
 
