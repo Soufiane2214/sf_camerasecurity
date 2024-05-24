@@ -1200,64 +1200,65 @@ function CheckJob(job)
         return PlayerData.job.name == job
     end
 end
+if Config.Shop.Enabled == true then
+    function OpenShop()
+        local menu = {}
 
-function OpenShop()
-    local menu = {}
-
-    for k,v in ipairs(Config.Shop.Store) do
-        if CheckJob(v.job) then
-            print(v.item)
-            local img = Config.ImageLinkInventory..QBCore.Shared.Items[v.item].image
-            menu[#menu +1] = {
-                title = QBCore.Shared.Items[v.item].label,
-                description = 'Price: '..v.price..'$',
-                icon = img,
-                image = img,
-                onSelect = function()
-                    local menu2 = {
-                        {
-                            title = 'Pay Cash',
-                            icon = 'money-bill',
-                            onSelect = function()
-                                local input = lib.inputDialog('Item Amount', {
-                                    {type = 'number', icon = 'hashtag', min = 1},
-                                })
-    
-                                if input then
-                                    local amount = tonumber(input[1])
-                                    TriggerServerEvent('sf_camerasecurity:Server:BuyItem', 'cash', v.price, v.item, amount)
-                                else
-                                    lib.showContext('camera_shop_cash_bank')
+        for k,v in ipairs(Config.Shop.Store) do
+            if CheckJob(v.job) then
+                print(v.item)
+                local img = Config.ImageLinkInventory..QBCore.Shared.Items[v.item].image
+                menu[#menu +1] = {
+                    title = QBCore.Shared.Items[v.item].label,
+                    description = 'Price: '..v.price..'$',
+                    icon = img,
+                    image = img,
+                    onSelect = function()
+                        local menu2 = {
+                            {
+                                title = 'Pay Cash',
+                                icon = 'money-bill',
+                                onSelect = function()
+                                    local input = lib.inputDialog('Item Amount', {
+                                        {type = 'number', icon = 'hashtag', min = 1},
+                                    })
+        
+                                    if input then
+                                        local amount = tonumber(input[1])
+                                        TriggerServerEvent('sf_camerasecurity:Server:BuyItem', 'cash', v.price, v.item, amount)
+                                    else
+                                        lib.showContext('camera_shop_cash_bank')
+                                    end
                                 end
-                            end
-                        },
-                        {
-                            title = 'Pay Bank',
-                            icon = 'building-columns',
-                            onSelect = function()
-                                local input = lib.inputDialog('Item Amount', {
-                                    {type = 'number', icon = 'hashtag', min = 1},
-                                })
-    
-                                if input then
-                                    local amount = tonumber(input[1])
-                                    TriggerServerEvent('sf_camerasecurity:Server:BuyItem', 'bank', v.price, v.item, amount)
-                                else
-                                    lib.showContext('camera_shop_cash_bank')
+                            },
+                            {
+                                title = 'Pay Bank',
+                                icon = 'building-columns',
+                                onSelect = function()
+                                    local input = lib.inputDialog('Item Amount', {
+                                        {type = 'number', icon = 'hashtag', min = 1},
+                                    })
+        
+                                    if input then
+                                        local amount = tonumber(input[1])
+                                        TriggerServerEvent('sf_camerasecurity:Server:BuyItem', 'bank', v.price, v.item, amount)
+                                    else
+                                        lib.showContext('camera_shop_cash_bank')
+                                    end
                                 end
-                            end
-                        },
-                    }
-    
-                    lib.registerContext({id = 'camera_shop_cash_bank', menu = 'camera_shop_menu', canClose = false, title = 'Payment Type', options = menu2})
-                    lib.showContext('camera_shop_cash_bank')
-                end
-            }
+                            },
+                        }
+        
+                        lib.registerContext({id = 'camera_shop_cash_bank', menu = 'camera_shop_menu', canClose = false, title = 'Payment Type', options = menu2})
+                        lib.showContext('camera_shop_cash_bank')
+                    end
+                }
+            end
         end
-    end
 
-    lib.registerContext({id = 'camera_shop_menu', title = 'Camera Shop', options = menu})
-    lib.showContext('camera_shop_menu')
+        lib.registerContext({id = 'camera_shop_menu', title = 'Camera Shop', options = menu})
+        lib.showContext('camera_shop_menu')
+    end
 end
 
 -- Threads
@@ -1299,61 +1300,63 @@ CreateThread(function() -- Loop Zones
 end)
 
 CreateThread(function()
-    -- Load Shop Blip
-    local blip = AddBlipForCoord(Config.Shop.Coords.x, Config.Shop.Coords.y, Config.Shop.Coords.z)
-    SetBlipSprite(blip, Config.Shop.Blip.Sprite)
-    SetBlipScale(blip, Config.Shop.Blip.Scale)
-    SetBlipDisplay(blip, 4)
-    SetBlipColour(blip, Config.Shop.Blip.Color)
-    SetBlipAsShortRange(blip, true)
-    BeginTextCommandSetBlipName("STRING")
-    AddTextComponentSubstringPlayerName(Config.Shop.Label)
-    EndTextCommandSetBlipName(blip)
-    ------------------
+    if Config.Shop.Enabled == true then
+        -- Load Shop Blip
+        local blip = AddBlipForCoord(Config.Shop.Coords.x, Config.Shop.Coords.y, Config.Shop.Coords.z)
+        SetBlipSprite(blip, Config.Shop.Blip.Sprite)
+        SetBlipScale(blip, Config.Shop.Blip.Scale)
+        SetBlipDisplay(blip, 4)
+        SetBlipColour(blip, Config.Shop.Blip.Color)
+        SetBlipAsShortRange(blip, true)
+        BeginTextCommandSetBlipName("STRING")
+        AddTextComponentSubstringPlayerName(Config.Shop.Label)
+        EndTextCommandSetBlipName(blip)
+        ------------------
 
-    local CurrentPed = type(Config.Shop.Ped) == "number" and Config.Shop.Ped or joaat(Config.Shop.Ped)
+        local CurrentPed = type(Config.Shop.Ped) == "number" and Config.Shop.Ped or joaat(Config.Shop.Ped)
 
-    RequestModel(CurrentPed)
-    while not HasModelLoaded(CurrentPed) do
-        Wait(0)
-    end
+        RequestModel(CurrentPed)
+        while not HasModelLoaded(CurrentPed) do
+            Wait(0)
+        end
 
-    local Ped = CreatePed(0, CurrentPed, Config.Shop.Coords.x, Config.Shop.Coords.y, Config.Shop.Coords.z-1, Config.Shop.Coords.w, false, false)   
-    TaskStartScenarioInPlace(Ped, Config.Shop.Scenario, 0, true)
-    FreezeEntityPosition(Ped, true)
-    SetEntityInvincible(Ped, true)
-    SetBlockingOfNonTemporaryEvents(Ped, true)
+        local Ped = CreatePed(0, CurrentPed, Config.Shop.Coords.x, Config.Shop.Coords.y, Config.Shop.Coords.z-1, Config.Shop.Coords.w, false, false)   
+        TaskStartScenarioInPlace(Ped, Config.Shop.Scenario, 0, true)
+        FreezeEntityPosition(Ped, true)
+        SetEntityInvincible(Ped, true)
+        SetBlockingOfNonTemporaryEvents(Ped, true)
 
-    if Config.Target == 'qb-target' then
-        exports['qb-target']:AddTargetEntity(Ped, {
-            options = {
+        if Config.Target == 'qb-target' then
+            exports['qb-target']:AddTargetEntity(Ped, {
+                options = {
+                    {
+                        label = Config.Shop.Label,
+                        icon = Config.Shop.Icon,
+                        action = function()
+                            OpenShop()
+                        end,
+                        canInteract = function() 
+                            return LocalPlayer.state.isLoggedIn
+                        end     
+                    }
+                },
+                distance = 2.0
+            })
+        elseif Config.Target == 'ox_target' then
+            exports.ox_target:addLocalEntity(Ped, {
                 {
                     label = Config.Shop.Label,
                     icon = Config.Shop.Icon,
-                    action = function()
+                    onSelect = function()
                         OpenShop()
                     end,
                     canInteract = function() 
                         return LocalPlayer.state.isLoggedIn
                     end     
                 }
-            },
-            distance = 2.0
-        })
-    elseif Config.Target == 'ox_target' then
-        exports.ox_target:addLocalEntity(Ped, {
-            {
-                label = Config.Shop.Label,
-                icon = Config.Shop.Icon,
-                onSelect = function()
-                    OpenShop()
-                end,
-                canInteract = function() 
-                    return LocalPlayer.state.isLoggedIn
-                end     
-            }
-        })
-    end 
+            })
+        end 
+    end
 
     if Config.Inventory == 'ox_inventory' then
         exports.ox_inventory:displayMetadata({
