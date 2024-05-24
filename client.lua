@@ -579,6 +579,7 @@ function WatchCam(Name, Coords, Rotation, Action, Cam_ID, DataCams, ID)
         local RighthingMove = 0
         local Clicked = false
         while InCam do
+	    LocalPlayer.state.invBusy = true
             local instructions = CreateInstuctionScaleform("instructional_buttons", Action.Type == 'Job')
             DrawScaleformMovieFullscreen(instructions, 255, 255, 255, 255, 0)
             DisableActions()
@@ -844,6 +845,7 @@ end
 
 function ExitCamera()
     if InCam and (CurrentCam ~= nil) then
+	LocalPlayer.state.invBusy = false
         InCam = false
         DoScreenFadeOut(500)
         while not IsScreenFadedOut() do Wait(0) end     
