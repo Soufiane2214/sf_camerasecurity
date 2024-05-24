@@ -14,6 +14,7 @@ Config.Target = 'qb-target'     -- ox_target / qb-target
 
 -- shop information
 Config.Shop = {   
+    Enabled = true,
     Label = 'Camera Shop',                                -- name shop
     Icon = 'fa-solid fa-camera',                          -- icon target eye
     Ped = 's_m_y_grip_01',                                -- ped shop
