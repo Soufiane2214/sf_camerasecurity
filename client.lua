@@ -540,6 +540,11 @@ end
 
 function WatchCam(Name, Coords, Rotation, Action, Cam_ID, DataCams, ID)
     if not InCam then
+        if Config.Inventory == 'qb-inventory' then
+            LocalPlayer.state:set('inv_busy', true, false)
+        elseif Config.Inventory == 'ox_inventory' then
+            LocalPlayer.state:set('invBusy', true, false)
+        end
         CurrentCamID = ID
         local LoadingCams = {} 
         local CuurentNumberCam 
@@ -859,6 +864,11 @@ function ExitCamera()
         DoScreenFadeIn(500)      
         while not IsScreenFadedIn() do Wait(0) end
         CurrentCam = nil
+        if Config.Inventory == 'qb-inventory' then
+            LocalPlayer.state:set('inv_busy', false, false)
+        elseif Config.Inventory == 'ox_inventory' then
+            LocalPlayer.state:set('invBusy', false, false)
+        end
     elseif Active then
         Active = false
         DeleteEntity(spyCam)
@@ -1202,6 +1212,7 @@ function CheckJob(job)
 end
 
 function OpenShop()
+    if not Config.Shop.Enable then return end
     local menu = {}
 
     for k,v in ipairs(Config.Shop.Store) do
@@ -1299,61 +1310,63 @@ CreateThread(function() -- Loop Zones
 end)
 
 CreateThread(function()
-    -- Load Shop Blip
-    local blip = AddBlipForCoord(Config.Shop.Coords.x, Config.Shop.Coords.y, Config.Shop.Coords.z)
-    SetBlipSprite(blip, Config.Shop.Blip.Sprite)
-    SetBlipScale(blip, Config.Shop.Blip.Scale)
-    SetBlipDisplay(blip, 4)
-    SetBlipColour(blip, Config.Shop.Blip.Color)
-    SetBlipAsShortRange(blip, true)
-    BeginTextCommandSetBlipName("STRING")
-    AddTextComponentSubstringPlayerName(Config.Shop.Label)
-    EndTextCommandSetBlipName(blip)
-    ------------------
-
-    local CurrentPed = type(Config.Shop.Ped) == "number" and Config.Shop.Ped or joaat(Config.Shop.Ped)
-
-    RequestModel(CurrentPed)
-    while not HasModelLoaded(CurrentPed) do
-        Wait(0)
+    if Config.Shop.Blip.Enable then
+        local blip = AddBlipForCoord(Config.Shop.Coords.x, Config.Shop.Coords.y, Config.Shop.Coords.z)
+        SetBlipSprite(blip, Config.Shop.Blip.Sprite)
+        SetBlipScale(blip, Config.Shop.Blip.Scale)
+        SetBlipDisplay(blip, 4)
+        SetBlipColour(blip, Config.Shop.Blip.Color)
+        SetBlipAsShortRange(blip, true)
+        BeginTextCommandSetBlipName("STRING")
+        AddTextComponentSubstringPlayerName(Config.Shop.Label)
+        EndTextCommandSetBlipName(blip)
     end
 
-    local Ped = CreatePed(0, CurrentPed, Config.Shop.Coords.x, Config.Shop.Coords.y, Config.Shop.Coords.z-1, Config.Shop.Coords.w, false, false)   
-    TaskStartScenarioInPlace(Ped, Config.Shop.Scenario, 0, true)
-    FreezeEntityPosition(Ped, true)
-    SetEntityInvincible(Ped, true)
-    SetBlockingOfNonTemporaryEvents(Ped, true)
+    if Config.Shop.Enable then
+        local CurrentPed = type(Config.Shop.Ped) == "number" and Config.Shop.Ped or joaat(Config.Shop.Ped)
 
-    if Config.Target == 'qb-target' then
-        exports['qb-target']:AddTargetEntity(Ped, {
-            options = {
+        RequestModel(CurrentPed)
+        while not HasModelLoaded(CurrentPed) do
+            Wait(0)
+        end
+    
+        local Ped = CreatePed(0, CurrentPed, Config.Shop.Coords.x, Config.Shop.Coords.y, Config.Shop.Coords.z-1, Config.Shop.Coords.w, false, false)   
+        TaskStartScenarioInPlace(Ped, Config.Shop.Scenario, 0, true)
+        FreezeEntityPosition(Ped, true)
+        SetEntityInvincible(Ped, true)
+        SetBlockingOfNonTemporaryEvents(Ped, true)
+    
+        if Config.Target == 'qb-target' then
+            exports['qb-target']:AddTargetEntity(Ped, {
+                options = {
+                    {
+                        label = Config.Shop.Label,
+                        icon = Config.Shop.Icon,
+                        action = function()
+                            OpenShop()
+                        end,
+                        canInteract = function() 
+                            return LocalPlayer.state.isLoggedIn
+                        end     
+                    }
+                },
+                distance = 2.0
+            })
+        elseif Config.Target == 'ox_target' then
+            exports.ox_target:addLocalEntity(Ped, {
                 {
                     label = Config.Shop.Label,
                     icon = Config.Shop.Icon,
-                    action = function()
+                    onSelect = function()
                         OpenShop()
                     end,
                     canInteract = function() 
                         return LocalPlayer.state.isLoggedIn
                     end     
                 }
-            },
-            distance = 2.0
-        })
-    elseif Config.Target == 'ox_target' then
-        exports.ox_target:addLocalEntity(Ped, {
-            {
-                label = Config.Shop.Label,
-                icon = Config.Shop.Icon,
-                onSelect = function()
-                    OpenShop()
-                end,
-                canInteract = function() 
-                    return LocalPlayer.state.isLoggedIn
-                end     
-            }
-        })
-    end 
+            })
+        end 
+    end
 
     if Config.Inventory == 'ox_inventory' then
         exports.ox_inventory:displayMetadata({
