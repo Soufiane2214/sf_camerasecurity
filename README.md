@@ -1,3 +1,5 @@
+### [buy me coffe](https://buymeacoffee.com/soufiane_11)
+
 # We have a goal to complete 1000 member in discord.
 # [Join Discord](https://discord.gg/WQNGvFY8)
 
