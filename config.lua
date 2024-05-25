@@ -14,13 +14,14 @@ Config.Target = 'qb-target'     -- ox_target / qb-target
 
 -- shop information
 Config.Shop = {   
+    Enable = true,                                        -- to active shop
     Label = 'Camera Shop',                                -- name shop
     Icon = 'fa-solid fa-camera',                          -- icon target eye
     Ped = 's_m_y_grip_01',                                -- ped shop
     Scenario = 'WORLD_HUMAN_CLIPBOARD',                   -- scenario ped
     Coords = vector4(152.98, -1363.35, 29.33, 230.07),    -- location ped
     Distance = 2.5,                                       -- distance to require to use ped shop
-    Blip = {Sprite = 184, Scale = 0.6, Color = 32},       -- blip setting
+    Blip = {Enable = true, Sprite = 184, Scale = 0.6, Color = 32},       -- blip setting
 
     -- item shop and prices 
     Store = {   
