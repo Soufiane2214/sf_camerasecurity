@@ -123,6 +123,12 @@ vpn = {name = 'vpn', label = 'VPN Router', weight = 1000, type = 'item', image =
 	weight = 1000,
 	stack = false
 },
+
+['screwdriverset'] = {
+	label = 'Toolkit',
+	weight = 1000,
+	stack = false
+},
 ```
 ### This item comming default in qb-core check before add please
 ```language
