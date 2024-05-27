@@ -1,12 +1,12 @@
 ### [buy me coffe](https://buymeacoffee.com/soufiane_11)
 
 # We have a goal to complete 1000 member in discord.
-# [Join Discord](https://discord.gg/WQNGvFY8)
+# [Join Discord](https://discord.gg/dcm4TNtbGQ)
 
 # Framework Support
 ## [QBCore](https://github.com/qbcore-framework) | [ESX](https://github.com/esx-framework)
 # SF Camera Security
-For all support questions, ask in our [Discord](https://discord.gg/WQNGvFY8) support chat. Do not create issues if you need help. Issues are for bug reporting and new features only.
+For all support questions, ask in our [Discord](https://discord.gg/dcm4TNtbGQ) support chat. Do not create issues if you need help. Issues are for bug reporting and new features only.
 
 # Preview
 - [Youtube Link](https://youtu.be/lK5qils5oCA?si=aGbLCtcj-wX7Kpxx)
