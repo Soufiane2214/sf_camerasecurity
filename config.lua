@@ -16,6 +16,7 @@ Config.TimerFixCamera = 10      -- sec (this only for jobs, no fix cam for norma
 Config.Target = 'qb-target'     -- ox_target / qb-target
 Config.Notify = 'lib'           -- qb / esx / lib / custom (require to add your custom notify in [sf_camerasecurity/client/utils.lua])
 Config.ProgressBar = 'lib'      -- qb / esx / lib / custom (require to add your custom progressbar in [sf_camerasecurity/client/utils.lua])
+Config.EnableWifiIcon = true    -- if you are near zone wifi is show you a icon wifi up screen
 
 -- shop information
 Config.Shop = {   
@@ -66,10 +67,10 @@ Config.DistanceCreateCam = {
 }
 
 -- wifi zones
-Config.WifiZones = {
+Config.WifiZones = { 
     {
         Coords = vector3(29.66, -1345.06, 29.5),
-        Distance = 5,
+        Distance = 10,
     }
 }
 
