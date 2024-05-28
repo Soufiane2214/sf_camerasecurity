@@ -14,6 +14,9 @@ local CurrentJob
 local CurrentType
 local CurrentItem
 local InSwitchingCam = false
+local Shown = false
+local CurrentWifiResau = 'green'
+
 -- Tablet Anim
 local InAnim = false
 local TabletDict = "amb@code_human_in_bus_passenger_idles@female@tablet@base"
@@ -23,8 +26,7 @@ local TabletObj
 local TabletBone = 60309
 local TabletOffset = vector3(0.03, 0.002, -0.0)
 local TabletRot = vector3(10.0, 160.0, 0.0)
--- Loop Camera Job
-local Shown = false
+
 
 -- Handlers
 AddEventHandler('onResourceStart', function(resourceName)
@@ -492,16 +494,22 @@ function InWifiZone()
         local pCoords = GetEntityCoords(PlayerPedId())
         local Dist = #(pCoords - v.Coords)
         if Dist <= v.Distance then
-            if Dist > (v.Distance - 1) then
-                local Random = math.random(1, 200)
-                if Random > 190 then
-                    return true, false
-                else
+            local chanse = math.random(1, 100)
+            if CurrentWifiResau == 'red' then
+                if chanse >= 30 then
                     return true, true
-                end          
+                else
+                    return true, false
+                end 
+            elseif CurrentWifiResau == 'orange' then            
+                if chanse >= 70 then
+                    return true, true
+                else
+                    return true, false
+                end             
             else
                 return true, false
-            end      
+            end
         end
     end
     return false, true
@@ -1272,7 +1280,7 @@ CreateThread(function() -- Loop Zones
 
         if InRange and not Shown and not InCam then
             Shown = true
-            lib.showTextUI('[E] To Show Camera List', {position = "left-center"})
+            lib.showTextUI('[E] Camera List', {position = "left-center"})
         elseif (not InRange and Shown) or InCam then
             Shown = false
             lib.hideTextUI()
@@ -1345,6 +1353,80 @@ CreateThread(function()
             signal = 'Camera Signal'
         })
     end   
+end)
+
+CreateThread(function()
+    if not Config.EnableWifiIcon then return end
+    local wait = 2000
+    local stat, lastStat, inWifiZone, shown = 'green', 'green', false, false
+    while true do
+        if isLogin() then
+            inWifiZone = false
+            wait = 500
+            local pedCoords = GetEntityCoords(PlayerPedId())
+            for k,v in pairs(Config.WifiZones) do
+                local lineWifi = v.Distance/3
+                local dist = #(pedCoords - v.Coords)
+                inWifiZone = dist <= v.Distance
+                
+                if dist <= lineWifi then
+                    stat = 'green'
+                elseif dist <= lineWifi*2 then
+                    stat = 'orange'
+                else
+                    stat = 'red'
+                end
+
+                CurrentWifiResau = stat
+
+                if inWifiZone then
+                    wait = 200
+                    break
+                end
+            end 
+            
+            if ((inWifiZone and not shown) or (inWifiZone and stat ~= lastStat)) and not InCam then
+                shown = true
+                lastStat = stat
+
+                local isOpen, text = lib.isTextUIOpen()
+                if isOpen and text == '' then
+                    lib.hideTextUI()
+                    lib.showTextUI('', {
+                        position = "top-center",
+                        icon = 'wifi',
+                        iconAnimation = 'beatFade',
+                        style = {
+                            borderRadius = 5,
+                            backgroundColor = 'rgba(0, 0, 0, 0.7)',
+                            color = lastStat,
+                            fontSize = '30px'
+                        }
+                    })
+                else
+                    if not isOpen then
+                        lib.showTextUI('', {
+                            position = "top-center",
+                            icon = 'wifi',
+                            iconAnimation = 'beatFade',
+                            style = {
+                                borderRadius = 5,
+                                backgroundColor = 'rgba(0, 0, 0, 0.7)',
+                                color = lastStat,
+                                fontSize = '30px'
+                            }
+                        })
+                    end            
+                end              
+            elseif (not inWifiZone and shown) or InCam then
+                shown = false
+                lib.hideTextUI()
+            end
+        else
+            wait = 2000
+        end
+        Wait(wait)
+    end
 end)
 
 -- KEY BINDS
