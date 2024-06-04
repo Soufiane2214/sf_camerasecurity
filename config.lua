@@ -2,20 +2,25 @@ Config = Config or {}
 
 Config.Framework = 'QBCore'     -- ESX / QBCore
 
+-- Resources
 Config.Inventory = 'qb-inventory'       -- ox_inventory / qb-inventory   (Note: dont use qb-inventory if your framework esx please)
-Config.SignalLength = 12   -- how much characters and numbers in signal 
-Config.MoveCamForwardDistance = 0.2     -- this only move camera coords to forward because some times big cam props hide the vision
 Config.ImageLinkInventory = "nui://qb-inventory/html/images/"  -- location images inventory ("nui://qb-inventory/html/images/") / ("nui://ox_inventory/web/images/")
+Config.Target = 'qb-target'     -- ox_target / qb-target
+Config.Notify = 'lib'           -- qb / esx / lib / custom (require to add your custom notify in [sf_camerasecurity/client/utils.lua])
+Config.ProgressBar = 'lib'      -- qb / esx / lib / custom (require to add your custom progressbar in [sf_camerasecurity/client/utils.lua])
+
+-- Items
 Config.RemoteTablet = 'camera_viewer'       -- for Citizens
 Config.TabletCamViewJobs = 'camera_tablet'  -- for Jobs
 Config.NeedItemFixCam = 'screwdriverset'    -- for job to fix cam
 Config.CameraSignalPaper = 'camera_paper'   -- for citizens to receive signal when create new camera
 Config.VpnItem = 'vpn'                      -- require this item in location wifi to watch camera
+
+-- Settings
+Config.SignalLength = 12   -- how much characters and numbers in signal 
+Config.MoveCamForwardDistance = 0.2     -- this only move camera coords to forward because some times big cam props hide the vision
 Config.DisableWifiSystem = false            -- if you want disable wifi system 
 Config.TimerFixCamera = 10      -- sec (this only for jobs, no fix cam for normal camera)
-Config.Target = 'qb-target'     -- ox_target / qb-target
-Config.Notify = 'lib'           -- qb / esx / lib / custom (require to add your custom notify in [sf_camerasecurity/client/utils.lua])
-Config.ProgressBar = 'lib'      -- qb / esx / lib / custom (require to add your custom progressbar in [sf_camerasecurity/client/utils.lua])
 Config.EnableWifiIcon = true    -- if you are in zone wifi, is show you a icon wifi up screen
 
 -- shop information
