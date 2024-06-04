@@ -52,3 +52,8 @@ end
 
 -- Events
 RegisterNetEvent('sf_camerasecurity:client:notify', notify)
+
+-- Callbacks
+lib.callback.register('sf_camerasecurity:Server:GetItemsOX', function(item)
+    return getItemInfo(item)
+end)
