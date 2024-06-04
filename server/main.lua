@@ -173,11 +173,13 @@ RegisterNetEvent('sf_camerasecurity:Server:BuyItem',function(typePay, price, ite
             if Config.Framework == 'QBCore' then
                 Player.Functions.AddItem(item, amountItem)
                 TriggerClientEvent('inventory:client:ItemBox', src, Core.Shared.Items[item], "add", amountItem)
+                TriggerClientEvent('sf_camerasecurity:client:notify', src, '('..Core.Shared.Items[item].label..') bought successfully', 'success')
             end        
         elseif Config.Inventory == 'ox_inventory' then
             exports.ox_inventory:AddItem(src, item, amountItem)
-        end        
-        TriggerClientEvent('sf_camerasecurity:client:notify', src, '('..Core.Shared.Items[item].label..') bought successfully', 'success')
+            local labelItem = lib.callback.await('sf_camerasecurity:Server:GetItemsOX', src, item).label
+            TriggerClientEvent('sf_camerasecurity:client:notify', src, '('..labelItem..') bought successfully', 'success')
+        end             
     else
         TriggerClientEvent('sf_camerasecurity:client:notify', src, 'No enough money', 'error')
     end
