@@ -23,6 +23,7 @@ For all support questions, ask in our [Discord](https://discord.gg/dcm4TNtbGQ) s
 - add images from folder **(install/item-images)** to **(qb-inventory/html/images)**.
 
 
+### Be careful, if you are use ``ox_inventory`` in QBCore framework dont add items in ``qb-core`` resource, require to add items in ``ox_inventory/data/items.lua`` ONLY.
 ### qb-inventory
 #### Add Items to **(qb-core/shared/items.lua)**
 ```language
