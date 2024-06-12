@@ -34,6 +34,8 @@ camera_citizen = { name = 'camera_citizen', label = 'Camera', weight = 3000, typ
 camera_viewer = { name = 'camera_viewer', label = 'Camera Viewer', weight = 1000, type = 'item', image = 'camera_viewer.png', unique = true, useable = true, shouldClose = true, combinable = nil, description = '' },
 camera_paper = { name = 'camera_paper', label = 'Camera Signal Paper', weight = 200, type = 'item', image = 'camera_paper.png', unique = true, useable = true, shouldClose = true, combinable = nil, description = '' },
 camera_tablet = { name = 'camera_tablet', label = 'CamView Tablet', weight = 2000, type = 'item', image = 'camera_tablet.png', unique = true, useable = true, shouldClose = true, combinable = nil, description = '' },
+camera_personaltablet = { name = 'camera_personaltablet', label = 'Personal CamView', weight = 2000, type = 'item', image = 'camera_personaltablet.png', unique = true, useable = true, shouldClose = true, combinable = nil, description = '' },
+camera_personal = { name = 'camera_personal', label = 'Personal Camera', weight = 3000, type = 'item', image = 'camera_personal.png', unique = true, useable = true, shouldClose = true, combinable = nil, description = '' },
 vpn = {name = 'vpn', label = 'VPN Router', weight = 1000, type = 'item', image = 'vpn.png', unique = true, useable = false, shouldClose = false, combinable = nil, description = ''},
 ```
 ### ox_inventory
@@ -120,6 +122,34 @@ vpn = {name = 'vpn', label = 'VPN Router', weight = 1000, type = 'item', image =
 	},
 	client = {
 		image = 'camera_tablet.png',
+	}	
+},
+
+['camera_personal'] = {
+	label = 'Personal Camera',
+	weight = 3000,
+	stack = false,
+	close = true,
+	consume = 0,
+	server = {
+		export = 'sf_camerasecurity.cam_camera_personal'
+	},
+	client = {
+		image = 'camera_personal.png',
+	}	
+},
+
+['camera_personaltablet'] = {
+	label = 'Personal CamView',
+	weight = 2000,
+	stack = false,
+	close = true,
+	consume = 0,
+	server = {
+		export = 'sf_camerasecurity.cam_camera_personaltablet'
+	},
+	client = {
+		image = 'camera_personaltablet.png',
 	}	
 },
 
