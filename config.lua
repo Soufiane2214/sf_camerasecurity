@@ -67,13 +67,15 @@ Config.Shop = {
 
     -- item shop and prices 
     Store = {   
-        {item = 'camera_viewer',    price = 1500},
-        {item = 'vpn',              price = 1000},
-        {item = 'camera_citizen',   price = 500},   
-        {item = 'camera_pd',        price = 250,    job = {'police'}},
-        {item = 'camera_ems',       price = 250,    job = {'ambulance'}},
-        {item = 'camera_tablet',    price = 1000,   job = {'police', 'ambulance'}},
-        {item = 'screwdriverset',   price = 250,    job = {'police', 'ambulance'}},
+        {item = 'camera_viewer',            price = 1500},
+        {item = 'vpn',                      price = 1000},
+        {item = 'camera_citizen',           price = 500},   
+        {item = 'camera_pd',                price = 250,    job = {'police'}},
+        {item = 'camera_ems',               price = 250,    job = {'ambulance'}},
+        {item = 'camera_tablet',            price = 1000,   job = {'police', 'ambulance'}},
+        {item = 'screwdriverset',           price = 250,    job = {'police', 'ambulance'}},
+        {item = 'camera_personal',          price = 500},  
+        {item = 'camera_personaltablet',    price = 2000},  
     }
 }
 
