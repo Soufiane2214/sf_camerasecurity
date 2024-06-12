@@ -15,6 +15,14 @@ function hasJob(src, job)
     return Player.PlayerData.job.name == job
 end
 
+-- get identifier
+function getIdenti(src)
+    local Player = Core.Functions.GetPlayer(src)
+    if not Player then return false end
+
+    return Player.PlayerData.citizenid
+end
+
 -- check if has money
 function hasMoney(src, type, amount)
     local Player = Core.Functions.GetPlayer(src)
