@@ -56,7 +56,7 @@ AddEventHandler('CEventGunShot', function(witnesses, ped, coords)
                     local SecondPropCoords = GetEntityCoords(Entity)
                     local Dist = #(FirstPropCoords - SecondPropCoords)
                     if Dist <= 0.1 then
-                        local BrokeCamera = BrokeCamera(v.Id)
+                        local BrokeCamera = lib.callback.await('sf_camerasecurity:Server:BrokeCamera', false, v.Id) 
                         if BrokeCamera == 'true' then
                             notify('You broke a camera', 'error', 5000)
                         end
@@ -67,7 +67,7 @@ AddEventHandler('CEventGunShot', function(witnesses, ped, coords)
         for k,v in pairs(LoadedNoPropCams) do
             local NearDist = #(v.Coord - Coords) 
             if NearDist <= 0.3 then
-                local BrokeCamera = BrokeCamera(v.Id)
+                local BrokeCamera = lib.callback.await('sf_camerasecurity:Server:BrokeCamera', false, v.Id)
                 if BrokeCamera == 'true' then
                     notify('You broke a camera', 'error', 5000)
                 end
@@ -121,18 +121,11 @@ end)
 
 RegisterNetEvent('sf_camerasecurity:Client:CreateNewCamera',function(Type, Job, Item)
     if Active then notify('You are active install camera', 'error', 3500) return end
-    if Type == 'Job' then
-        CurrentJob = Job
-        CurrentType = Type
-        CurrentItem = Item
-        Active = true
-        StartLineCreate(Type)     
-    elseif Type == 'Signal' then
-        CurrentType = Type
-        CurrentItem = Item
-        Active = true
-        StartLineCreate(Type) 
-    end  
+    CurrentJob = Job
+    CurrentType = Type
+    CurrentItem = Item
+    Active = true
+    StartLineCreate(Type)   
 end)
 
 RegisterNetEvent('sf_camerasecurity:Client:ConnectCamBySignal',function()
@@ -154,7 +147,7 @@ RegisterNetEvent('sf_camerasecurity:Client:ConnectCamBySignal',function()
                 local DataConnect = {}
                 for k, v in pairs(Result) do
                     local Settings = json.decode(v.setting) 
-                    if Settings.Type == 'Signal' then
+                    if Settings.Type == 'Signal' or Settings.Type == 'Personal' then
                         if Settings.Signal == Input[1] then
                             FindCam = true
                             DataConnect.ID = v.id
@@ -185,7 +178,7 @@ RegisterNetEvent('sf_camerasecurity:Client:GetSignalPaper',function(signalcode)
         header = 'Camera Signal: '..signalcode,
         centered = true,
         cancel = false,
-        labels = {confirm = 'copy'}
+        labels = {confirm = 'Copy'}
     })
     
     if alert == 'confirm' then
@@ -206,7 +199,7 @@ RegisterNetEvent('sf_camerasecurity:Client:CrashCamera',function(id)
 end)
 
 RegisterNetEvent('sf_camerasecurity:Client:OpenStaticCams',function()
-    if InAnim then notify('Already Open', 'error') return end
+    if InAnim then notify('Already a tablet open', 'error') return end
     lib.callback('sf_camerasecurity:Server:GetStaticCams', false, function(Result)
         if Result then
             local MenuCam = {}  
@@ -239,7 +232,7 @@ RegisterNetEvent('sf_camerasecurity:Client:OpenStaticCams',function()
                     NumberTables += 1
                     local Cam_ID = #MenuCam +1
                     MenuCam[Cam_ID] = {
-                        title = '#'..v.id..' | '..v.name,
+                        title = v.name,
                         description = 'Status: '..Stat,
                         arrow = true,
                         icon = Icon,
@@ -258,24 +251,7 @@ RegisterNetEvent('sf_camerasecurity:Client:OpenStaticCams',function()
                                     title = 'Remove Camera',
                                     icon = 'trash',
                                     onSelect = function()
-                                        local pCoords = GetEntityCoords(PlayerPedId())
-                                        local CamCoords = json.decode(v.coords)                                       
-                                        local Dist = #(pCoords - vector3(CamCoords.x, CamCoords.y, CamCoords.z)) 
-                                        if Dist <= Settings.DistanceRemove + 1 then
-                                            local Confirm = lib.alertDialog({
-                                                header = 'Are You Sure You Want Remove Camera ('..v.name..')',
-                                                centered = true, cancel = true
-                                            })
-                                            if Confirm == 'confirm' then
-                                                InAnim = false
-                                                TriggerServerEvent('sf_camerasecurity:Server:RemoveStaticCam', v.id)      
-                                            elseif Confirm == 'cancel' then
-                                                lib.showContext('Option_Camera_Menu') 
-                                            end  
-                                        else
-                                            InAnim = false
-                                            notify('Need to be near this camera', 'error', 5000)
-                                        end                                                                            
+                                        removeCamera(v, Settings)                                                                         
                                     end
                                 }
                             end
@@ -284,35 +260,7 @@ RegisterNetEvent('sf_camerasecurity:Client:OpenStaticCams',function()
                                     title = 'Repair Camera',
                                     icon = 'screwdriver-wrench',
                                     onSelect = function()
-                                        local pCoords = GetEntityCoords(PlayerPedId())
-                                        local CamCoords = json.decode(v.coords)                                       
-                                        local Dist = #(pCoords - vector3(CamCoords.x, CamCoords.y, CamCoords.z)) 
-                                        if Dist <= Settings.DistanceRemove + 1 then
-                                            if hasItem(Config.NeedItemFixCam) then
-                                                local timerrr = Config.TimerFixCamera*1000
-
-                                                TriggerEvent('sf_camerasecurity:Client:LiserFixCam', TabletObj, CamCoords, timerrr)
-
-                                                local progressON = true
-                                                CreateThread(function() progressBar("Repairing....", timerrr) end)
-                                                SetTimeout(timerrr, function() progressON = false end)
-                                                while progressON do 
-                                                    DisableAllControlActions(0)
-                                                    EnableControlAction(0, 1, true)
-                                                    EnableControlAction(0, 2, true)
-                                                    Wait(5) 
-                                                end
-
-                                                InAnim = false                               
-                                                TriggerServerEvent('sf_camerasecurity:Server:FixCameraByID', v.id)  
-                                            else
-                                                InAnim = false 
-                                                notify('Need item ('..getItemInfo(Config.NeedItemFixCam).label..')', 'error', 5000)
-                                            end
-                                        else
-                                            InAnim = false
-                                            notify('Need to be near this camera', 'error', 5000)
-                                        end                                                                            
+                                        repairCamera(v.id, v.coords, Settings)                                                                           
                                     end
                                 }
                             end
@@ -366,6 +314,125 @@ RegisterNetEvent('sf_camerasecurity:Client:LiserFixCam',function(Prop, CamCoord,
         DrawMarker(28, CamCoord.x, CamCoord.y, CamCoord.z, 0.0, 0.0, 0.0, 0.0, 180.0, 0.0, 0.1, 0.1, 0.1, Color.r, Color.g, Color.b, Color.a, false, true, 2, nil, nil, false)        
         Wait(5)
     end 
+end)
+
+RegisterNetEvent('sf_camerasecurity:Client:OpenPersonalCamera',function(result, myIdentifier)
+    if InAnim then notify('Already a tablet open', 'error') return end
+
+    if not result or not myIdentifier then
+        result, myIdentifier = lib.callback.await('sf_camerasecurity:Server:GetStaticCams', false)
+    end
+    
+    if result then
+        local Menu = {} 
+        for k, v in pairs(result) do
+            local setting = json.decode(v.setting)
+            if setting.Type == 'Personal' and setting.owned == myIdentifier then
+                local stat = (tonumber(setting.Broken) == 1) and 'Offline 🔴' or 'Online 🟢'
+                Menu[#Menu +1] = {
+                    title = v.name,
+                    description = 'Status: '..stat,
+                    icon = (setting.Icon and setting.Icon ~= '') and setting.Icon or 'camera',
+                    onSelect = function()
+                        local menu2 = {}
+
+                        menu2[#menu2 +1] = {
+                            title = 'Watch',
+                            icon = 'camera',
+                            onSelect = function()
+                                WatchCam(v.name, v.coords, v.rot, setting, false, false, v.id)
+                            end
+                        }
+
+                        menu2[#menu2 +1] = {
+                            title = 'Show Signal',
+                            description = 'This to share the signal with someone',
+                            icon = 'signal',
+                            onSelect = function()
+                                local menu3 = {}
+
+                                menu3[#menu3 +1] = {
+                                    title = 'Show Signal',
+                                    icon = 'eye',
+                                    onSelect = function()
+                                        local alert = lib.alertDialog({
+                                            header = 'Camera Signal: '..setting.Signal,
+                                            centered = true,
+                                            cancel = false,
+                                            labels = {confirm = 'Copy'}
+                                        })
+                                        
+                                        if alert == 'confirm' then                                                
+                                            lib.setClipboard(setting.Signal)
+                                            notify('Signal Camera Code Copied', 'success')
+                                        end
+
+                                        InAnim = false
+                                        Shown = false
+                                    end
+                                }
+
+                                menu3[#menu3 +1] = {
+                                    title = 'Regenerate Signal',
+                                    icon = 'repeat',
+                                    onSelect = function()
+                                        local sign = GenerateRandomSignal()
+
+                                        lib.callback('sf_camerasecurity:Server:RegenerateSignal', false, function(data, ident)
+                                            TriggerEvent('sf_camerasecurity:Client:OpenPersonalCamera', data, ident)
+                                            InAnim = false
+                                            Shown = false
+                                            return
+                                        end, v.id, sign)
+                                    end
+                                }
+
+                                lib.registerContext({id = 'setting_personal_signal_cam', menu = 'setting_personal_cam', canClose = false, title = 'Camera Signal', options = menu3})
+                                lib.showContext('setting_personal_signal_cam')                  
+                            end
+                        }
+
+                        if tonumber(setting.Broken) == 1 then
+                            menu2[#menu2 +1] = {
+                                title = 'Repair Camera',
+                                icon = 'screwdriver-wrench',
+                                onSelect = function()
+                                    repairCamera(v.id, v.coords, setting) 
+                                end
+                            }
+                        end                
+
+                        if tonumber(setting.CanRemove) == 1 then
+                            menu2[#menu2 +1] = {
+                                title = 'Remove Camera',
+                                icon = 'trash',
+                                onSelect = function()
+                                    removeCamera(v, setting) 
+                                end
+                            }
+                        end    
+
+                        lib.registerContext({id = 'setting_personal_cam', menu = 'personal_cameras', canClose = false, title = v.name, options = menu2})
+                        lib.showContext('setting_personal_cam')
+                    end
+                }   
+            end                      
+        end
+
+        if #Menu >= 1 then
+            TabletAnimation()
+            lib.registerContext({id = 'personal_cameras', title = 'Personal Cameras', onExit = function() InAnim = false end, options = Menu })
+            lib.showContext('personal_cameras')
+        else
+            InAnim = false
+            Shown = false
+            notify('No own camera', 'error')
+        end         
+    else
+        InAnim = false
+        Shown = false
+        notify('No own camera', 'error')
+    end
 end)
 
 -- Functions
@@ -462,11 +529,11 @@ function GenerateRandomIPv4()
     return GeneratedIP
 end
 
-function GenerateRandomSignal(length)
+function GenerateRandomSignal()
     local characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
     local signal = ""
     
-    for i = 1, length do
+    for i = 1, Config.SignalLength do
         local randomIndex = math.random(1, #characters)
         local randomChar = characters:sub(randomIndex, randomIndex)
         signal = signal .. randomChar
@@ -477,10 +544,10 @@ function GenerateRandomSignal(length)
     if Result then
         for k, v in pairs(Result) do
             local Settings = json.decode(v.setting) 
-            if Settings.Type == 'Signal' then
+            if Settings.Type == 'Signal' or Settings.Type == 'Personal' then
                 if Settings.Signal == signal then
                     TriggerServerEvent('sf_camerasecurity:Server:ErrorSendAlert', 'Generate Signale Already Available, Try Creating New One')
-                    return GenerateRandomSignal(length)
+                    return GenerateRandomSignal()
                 end
             end
         end   
@@ -540,6 +607,8 @@ function WatchCam(Name, Coords, Rotation, Action, Cam_ID, DataCams, ID)
             CuurentNumberCam = Cam_ID
             for _, datacam in pairs(DataCams) do LoadingCams[_] = datacam end
         elseif Action.Type == 'Signal' then
+            CuurentNumberCam = ''
+        elseif Action.Type == 'Personal' then
             CuurentNumberCam = ''
         end        
         DoScreenFadeOut(500)
@@ -908,6 +977,8 @@ function StartLineCreate(thetype)
         ThePropHash = Config.PropListJob[1]
     elseif thetype == 'Signal' then
         ThePropHash = Config.SignalItem.Prop
+    elseif thetype == 'Personal' then
+        ThePropHash = Config.PersonalCamera.Props[1]
     end
     CurrentHashCam = ThePropHash
     RequestModel(ThePropHash)
@@ -919,6 +990,8 @@ function StartLineCreate(thetype)
     local DistanceCamCreate = Config.DistanceCreateCam.Jobs
     if thetype == 'Signal' then
         DistanceCamCreate = Config.DistanceCreateCam.SignalCam
+    elseif thetype == 'Personal' then
+        DistanceCamCreate = Config.DistanceCreateCam.PersonalCam
     end
     local KeysTable = {
         {Text = 'Set Camera', Key = 38},
@@ -928,7 +1001,7 @@ function StartLineCreate(thetype)
         {Text = 'UP Camera', Key = 172},
         {Text = 'Down Camera', Key = 173},
     }
-    if thetype == 'Job' then
+    if thetype ~= 'Signal' then
         KeysTable[#KeysTable +1] = {Text = 'Next Cam Prop', Key = 311}
         KeysTable[#KeysTable +1] = {Text = 'Back Cam Prop', Key = 182}
     end
@@ -959,7 +1032,7 @@ function StartLineCreate(thetype)
                 local GetEntityRotation = GetEntityRotation(spyCam)
 
                 -- SET OBJECT IN WALL
-                SetEntityCoordsNoOffset(spyCam, coords.x, coords.y, coords.z, true, true, true)
+                SetEntityCoords(spyCam, coords.x, coords.y, coords.z, true, true, true)
 
                 -- ROTATE UP
                 if IsControlPressed(0, 172) then
@@ -994,7 +1067,7 @@ function StartLineCreate(thetype)
                 end
                 InHit = false
             end
-            if thetype == 'Job' then
+            if thetype ~= 'Signal' then
                 local PropSwitched = false
 
                 -- BACK PROP
@@ -1077,7 +1150,6 @@ function PlaceCam(Data)
             Wait(200)
             local cameraRotation = GetCamRot(Camera, 2)     
             DestroyCam(Camera, false)
-            local Input = {}
             local Table = {}
             
             if Data then        
@@ -1090,6 +1162,8 @@ function PlaceCam(Data)
                 elseif CurrentType == 'Signal' then
                     Table[#Table +1] = {type = 'input', label = 'Camera Name', required = true, min = 4, max = 20, default = Data[1]}
                     Table[#Table +1] = {type = 'checkbox', label = 'Enable Movement', checked = Data[5]}
+                elseif CurrentType == 'Personal' then
+
                 end
             else
                 if CurrentType == 'Job' then
@@ -1101,10 +1175,15 @@ function PlaceCam(Data)
                 elseif CurrentType == 'Signal' then
                     Table[#Table +1] = {type = 'input', label = 'Camera Name', required = true, min = 4, max = 30}
                     Table[#Table +1] = {type = 'checkbox', label = 'Enable Movement'}
+                elseif CurrentType == 'Personal' then
+                    Table[#Table +1] = {type = 'input', label = 'Camera Name', required = true, min = 4, max = 30}
+                    Table[#Table +1] = {type = 'input', label = 'Icon', min = 4, max = 20}
+                    Table[#Table +1] = {type = 'checkbox', label = 'Can Remove'}
+                    Table[#Table +1] = {type = 'checkbox', label = 'Enable Movement'}
                 end      
             end
     
-            Input = lib.inputDialog('Camera Setting', Table)
+            local Input = lib.inputDialog('Camera Setting', Table)
             
             if Input then
                 local Confirm = lib.alertDialog({
@@ -1113,25 +1192,34 @@ function PlaceCam(Data)
                 })
                 if Confirm == 'confirm' then 
                     if CurrentType == 'Job' then
-                        if not Input[2] then Input[2] = 'camera' end
                         if Input[3] then Input[3] = 1 else Input[3] = 0 end
                         if Input[4] then Input[4] = 1 else Input[4] = 0 end
                         if Input[5] then Input[5] = 1 else Input[5] = 0 end
                     elseif CurrentType == 'Signal' then
                         if Input[2] then Input[2] = 1 else Input[2] = 0 end
+                    elseif CurrentType == 'Personal' then
+                        if Input[3] then Input[3] = 1 else Input[3] = 0 end
+                        if Input[4] then Input[4] = 1 else Input[4] = 0 end
                     end     
     
                     if CurrentType == 'Job' then
                         local Setting = {
-                            Prop = CurrentHashCam, Icon = Input[2] or '', CanRemove = Input[3], 
-                            ShowProp = Input[4], CanMove = Input[5], 
-                            Type = CurrentType, Job = CurrentJob, PropCoords = PropCameraCoords, 
-                            Broken = 0, IP = GenerateRandomIPv4(), DistanceRemove = #(CurrentPlayerCoordDistance - coords)
+                            Prop = CurrentHashCam, 
+                            Icon = Input[2] or 'camera', 
+                            CanRemove = Input[3], 
+                            ShowProp = Input[4], 
+                            CanMove = Input[5], 
+                            Type = CurrentType, 
+                            Job = CurrentJob, 
+                            PropCoords = PropCameraCoords, 
+                            Broken = 0, 
+                            IP = GenerateRandomIPv4(), 
+                            DistanceRemove = #(CurrentPlayerCoordDistance - coords)
                         }
                         DeleteEntity(spyCam)
                         local RecheckItem = hasItem(CurrentItem)
                         if RecheckItem then
-                            TriggerServerEvent('sf_camerasecurity:Server:SaveNewCam', Input[1], json.encode(Setting), json.encode(coords), json.encode(cameraRotation), CurrentItem)
+                            TriggerServerEvent('sf_camerasecurity:Server:SaveNewCam', Input[1], Setting, json.encode(coords), json.encode(cameraRotation), CurrentItem)
                         else
                             notify('Need item to add camera', 'error', 5000)
                         end
@@ -1141,17 +1229,51 @@ function PlaceCam(Data)
                         CurrentItem = nil
                     elseif CurrentType == 'Signal' then
                         local Setting = {
-                            Prop = Config.SignalItem.Prop, Icon = '', CanRemove = 1, ShowProp = 1, CanMove = Input[2], Type = CurrentType, Job = '', 
-                            PropCoords = PropCameraCoords, Signal = GenerateRandomSignal(Config.SignalLength),
-                            Broken = 0, IP = GenerateRandomIPv4(), DistanceRemove = #(CurrentPlayerCoordDistance - coords)
+                            Prop = Config.SignalItem.Prop, 
+                            Icon = '', 
+                            CanRemove = 1, 
+                            ShowProp = 1, 
+                            CanMove = Input[2], 
+                            Type = CurrentType, 
+                            Job = '', 
+                            PropCoords = PropCameraCoords, 
+                            Signal = GenerateRandomSignal(),
+                            Broken = 0, 
+                            IP = GenerateRandomIPv4(), 
+                            DistanceRemove = #(CurrentPlayerCoordDistance - coords)
                         }
                         DeleteEntity(spyCam)
                         local RecheckItem = hasItem(CurrentItem)
                         if RecheckItem then
-                            TriggerServerEvent('sf_camerasecurity:Server:SaveNewCam', Input[1], json.encode(Setting), json.encode(coords), json.encode(cameraRotation), CurrentItem, Setting.Signal)
+                            TriggerServerEvent('sf_camerasecurity:Server:SaveNewCam', Input[1], Setting, json.encode(coords), json.encode(cameraRotation), CurrentItem, Setting.Signal)
                         else
                             notify('Need item to add camera', 'error', 5000)
                         end        
+                        CurrentType = nil
+                        CurrentJob = nil
+                        CurrentItem = nil
+                    elseif CurrentType == 'Personal' then
+                        local Setting = {
+                            Prop = CurrentHashCam, 
+                            Icon = Input[2] or 'camera', 
+                            CanRemove = Input[3], 
+                            ShowProp = 1, 
+                            CanMove = Input[4], 
+                            Type = CurrentType, 
+                            PropCoords = PropCameraCoords, 
+                            Broken = 0, 
+                            IP = GenerateRandomIPv4(), 
+                            Signal = GenerateRandomSignal(),
+                            DistanceRemove = #(CurrentPlayerCoordDistance - coords)
+                        }
+                        DeleteEntity(spyCam)
+                        local RecheckItem = hasItem(CurrentItem)
+                        if RecheckItem then
+                            TriggerServerEvent('sf_camerasecurity:Server:SaveNewCam', Input[1], Setting, json.encode(coords), json.encode(cameraRotation), CurrentItem)
+                        else
+                            notify('Need item to add camera', 'error', 5000)
+                        end
+                        
                         CurrentType = nil
                         CurrentJob = nil
                         CurrentItem = nil
@@ -1166,10 +1288,6 @@ function PlaceCam(Data)
             end
         end  
     end)  
-end
-
-function BrokeCamera(id)
-    return lib.callback.await('sf_camerasecurity:Server:BrokeCamera', false, id)
 end
 
 function hasItem(item)
@@ -1249,6 +1367,59 @@ function OpenShop()
 
     lib.registerContext({id = 'camera_shop_menu', title = 'Camera Shop', options = menu})
     lib.showContext('camera_shop_menu')
+end
+
+function repairCamera(id, coords, setting)
+    local pCoords = GetEntityCoords(PlayerPedId())
+    local CamCoords = json.decode(coords)                                       
+    local Dist = #(pCoords - vector3(CamCoords.x, CamCoords.y, CamCoords.z)) 
+    if Dist <= setting.DistanceRemove + 1 then
+        if hasItem(Config.NeedItemFixCam) then
+            local timerrr = Config.TimerFixCamera*1000
+
+            TriggerEvent('sf_camerasecurity:Client:LiserFixCam', TabletObj, CamCoords, timerrr)
+
+            local progressON = true
+            CreateThread(function() progressBar("Repairing....", timerrr) end)
+            SetTimeout(timerrr, function() progressON = false end)
+            while progressON do 
+                DisableAllControlActions(0)
+                EnableControlAction(0, 1, true)
+                EnableControlAction(0, 2, true)
+                Wait(5) 
+            end
+
+            InAnim = false                               
+            TriggerServerEvent('sf_camerasecurity:Server:FixCameraByID', id)  
+        else
+            InAnim = false 
+            notify('Need item ('..getItemInfo(Config.NeedItemFixCam).label..')', 'error', 5000)
+        end
+    else
+        InAnim = false
+        notify('Need to be near this camera', 'error', 5000)
+    end  
+end
+
+function removeCamera(v, sett)
+    local pCoords = GetEntityCoords(PlayerPedId())
+    local CamCoords = json.decode(v.coords)                                       
+    local Dist = #(pCoords - vector3(CamCoords.x, CamCoords.y, CamCoords.z)) 
+    if Dist <= sett.DistanceRemove + 1 then
+        local Confirm = lib.alertDialog({
+            header = 'Are You Sure You Want Remove Camera ('..v.name..')',
+            centered = true, cancel = true
+        })
+        if Confirm == 'confirm' then
+            InAnim = false
+            TriggerServerEvent('sf_camerasecurity:Server:RemoveStaticCam', v.id)      
+        elseif Confirm == 'cancel' then
+            lib.showContext('Option_Camera_Menu') 
+        end  
+    else
+        InAnim = false
+        notify('Need to be near this camera', 'error', 5000)
+    end
 end
 
 -- Threads
