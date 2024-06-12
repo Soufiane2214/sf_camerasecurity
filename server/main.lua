@@ -37,6 +37,11 @@ RegisterNetEvent('sf_camerasecurity:Server:FixCameraByID',function(id)
             local Setting = json.decode(v.setting)
             Setting.Broken = 0
             StoredCams[k].setting = json.encode(Setting)
+
+            if not Config.AutoRepairCameras then
+                MySQL.update.await('UPDATE '..SQL_Table..' SET setting = ? WHERE id = ?', {StoredCams[k].setting, v.id})
+            end
+            
             if tonumber(Setting.ShowProp) == 1 then
                 TriggerClientEvent('sf_camerasecurity:Client:LoadPropCamera', -1, Setting.Prop, Setting.PropCoords.Coords, Setting.PropCoords.Rotation, id, true)
             else
@@ -52,10 +57,15 @@ RegisterNetEvent('sf_camerasecurity:Server:SaveNewCam',function(name, setting, c
     local src = source
     local Player = getPlayer(src)
     if not Player then return end
+
+    if setting.Type == 'Personal' then
+        setting.owned = getIdenti(src)
+    end
+
     MySQL.insert('INSERT INTO '..SQL_Table..' (name, setting, coords, rot) VALUES (?, ?, ?, ?)', {
-        name, setting, coords, rot
+        name, json.encode(setting), coords, rot
     }, function(id)
-        StoredCams[#StoredCams+1] = {name = name, setting = setting, coords = coords, rot = rot, id = id}
+        StoredCams[#StoredCams+1] = {name = name, setting = json.encode(setting), coords = coords, rot = rot, id = id}
         if Config.Inventory == 'qb-inventory' then
             if Config.Framework == 'QBCore' then
                 Player.Functions.RemoveItem(item, 1)
@@ -64,13 +74,12 @@ RegisterNetEvent('sf_camerasecurity:Server:SaveNewCam',function(name, setting, c
         elseif Config.Inventory == 'ox_inventory' then
             exports.ox_inventory:RemoveItem(src, item, 1)
         end
-        local UncodedSetting = json.decode(setting)
-        if tonumber(UncodedSetting.ShowProp) == 1 then
-            TriggerClientEvent('sf_camerasecurity:Client:LoadPropCamera', -1, UncodedSetting.Prop, UncodedSetting.PropCoords.Coords, UncodedSetting.PropCoords.Rotation, id, true)
+        if tonumber(setting.ShowProp) == 1 then
+            TriggerClientEvent('sf_camerasecurity:Client:LoadPropCamera', -1, setting.Prop, setting.PropCoords.Coords, setting.PropCoords.Rotation, id, true)
         else
-            TriggerClientEvent('sf_camerasecurity:Client:LoadPropCamera', -1, UncodedSetting.Prop, UncodedSetting.PropCoords.Coords, UncodedSetting.PropCoords.Rotation, id, false)
+            TriggerClientEvent('sf_camerasecurity:Client:LoadPropCamera', -1, setting.Prop, setting.PropCoords.Coords, setting.PropCoords.Rotation, id, false)
         end
-        if UncodedSetting.Type == 'Signal' then
+        if setting.Type == 'Signal' then
             SetTimeout(2000, function()
                 local info = {signal = signalcode}
                 if Config.Inventory == 'qb-inventory' then
@@ -81,7 +90,7 @@ RegisterNetEvent('sf_camerasecurity:Server:SaveNewCam',function(name, setting, c
                 elseif Config.Inventory == 'ox_inventory' then
                     exports.ox_inventory:AddItem(src, Config.CameraSignalPaper, 1, info)
                 end                        
-            end)   
+            end) 
         end     
         TriggerClientEvent('sf_camerasecurity:client:notify', src, 'Camera Added Successfully', 'success', 5000)
     end)   
@@ -187,7 +196,27 @@ end)
 
 -- CallBacks
 lib.callback.register('sf_camerasecurity:Server:GetStaticCams', function(source)
-    return StoredCams
+    return StoredCams, getIdenti(source)
+end)
+
+lib.callback.register('sf_camerasecurity:Server:RegenerateSignal',function(source, id, newSignal)
+    local src = source
+    for k, v in pairs(StoredCams) do   
+        if v.id == id then 
+            local setting = json.decode(v.setting)
+            setting.Signal = newSignal
+            StoredCams[k].setting = json.encode(setting)
+
+            if not Config.AutoRepairCameras then
+                MySQL.update.await('UPDATE '..SQL_Table..' SET setting = ? WHERE id = ?', {json.encode(setting), id})
+            end
+            
+            TriggerClientEvent('sf_camerasecurity:client:notify', src, 'Camera Signal Changed', 'success', 5000)
+            break
+        end
+    end
+
+    return StoredCams, getIdenti(source)
 end)
 
 lib.callback.register('sf_camerasecurity:Server:HasItem', function(source, item)
@@ -214,6 +243,11 @@ lib.callback.register('sf_camerasecurity:Server:BrokeCamera', function(source, i
                 Setting.Broken = 1
                 StoredCams[k].setting = json.encode(Setting) 
                 Broken = 'true'
+
+                if not Config.AutoRepairCameras then
+                    MySQL.update.await('UPDATE '..SQL_Table..' SET setting = ? WHERE id = ?', {StoredCams[k].setting, StoredCams[k].id})
+                end
+                
                 TriggerClientEvent('sf_camerasecurity:Client:CrashCamera', -1, tonumber(v.id))
                 if tonumber(Setting.ShowProp) == 1 then
                     TriggerClientEvent('sf_camerasecurity:Client:RemovePropCamera', -1, tonumber(v.id), true)
@@ -230,6 +264,21 @@ lib.callback.register('sf_camerasecurity:Server:BrokeCamera', function(source, i
                     TriggerClientEvent('sf_camerasecurity:Client:RemovePropCamera', -1, tonumber(v.id), false)
                 end              
                 Broken = 'true'
+            elseif Setting.Type == 'Personal' and tonumber(Setting.Broken) == 0 then
+                Setting.Broken = 1
+                StoredCams[k].setting = json.encode(Setting) 
+                Broken = 'true'
+                
+                if not Config.AutoRepairCameras then
+                    MySQL.update.await('UPDATE '..SQL_Table..' SET setting = ? WHERE id = ?', {StoredCams[k].setting, StoredCams[k].id})
+                end
+                
+                TriggerClientEvent('sf_camerasecurity:Client:CrashCamera', -1, tonumber(v.id))
+                if tonumber(Setting.ShowProp) == 1 then
+                    TriggerClientEvent('sf_camerasecurity:Client:RemovePropCamera', -1, tonumber(v.id), true)
+                else
+                    TriggerClientEvent('sf_camerasecurity:Client:RemovePropCamera', -1, tonumber(v.id), false)
+                end 
             end        
             break
         end 
@@ -259,7 +308,18 @@ CreateThread(function()
         exports('cam_'..Config.SignalItem.NameItem, function(event, item, inventory, slot, data)
             if event == 'usingItem' then
                 local itemSlot = exports.ox_inventory:GetSlot(inventory.id, slot)
-                TriggerClientEvent('sf_camerasecurity:Client:CreateNewCamera', inventory.id, Config.SignalItem.Type, false, itemSlot.name)
+                TriggerClientEvent('sf_camerasecurity:Client:CreateNewCamera', inventory.id, 'Signal', false, itemSlot.name)
+            end
+        end)
+        exports('cam_'..Config.PersonalCamera.NameItem, function(event, item, inventory, slot, data)
+            if event == 'usingItem' then
+                local itemSlot = exports.ox_inventory:GetSlot(inventory.id, slot)
+                TriggerClientEvent('sf_camerasecurity:Client:CreateNewCamera', inventory.id, 'Personal', false, itemSlot.name)
+            end
+        end)
+        exports('cam_'..Config.PersonalCamera.TabletItem, function(event, item, inventory, slot, data)
+            if event == 'usingItem' then
+                TriggerClientEvent('sf_camerasecurity:Client:OpenPersonalCamera', inventory.id)
             end
         end)
     
@@ -292,23 +352,27 @@ CreateThread(function()
     elseif Config.Inventory == 'qb-inventory' then
         if Config.Framework == 'QBCore' then
             Core.Functions.CreateUseableItem(Config.RemoteTablet, function(source, item)
-                local src = source
-                TriggerClientEvent('sf_camerasecurity:Client:ConnectCamBySignal', src)
+                TriggerClientEvent('sf_camerasecurity:Client:ConnectCamBySignal', source)
             end)
             
             Core.Functions.CreateUseableItem(Config.TabletCamViewJobs, function(source, item)
-                local src = source
-                TriggerClientEvent('sf_camerasecurity:Client:OpenStaticCams', src)
+                TriggerClientEvent('sf_camerasecurity:Client:OpenStaticCams', source)
             end)
             
             Core.Functions.CreateUseableItem(Config.CameraSignalPaper, function(source, item)
-                local src = source
-                TriggerClientEvent('sf_camerasecurity:Client:GetSignalPaper', src, item.info.signal)
+                TriggerClientEvent('sf_camerasecurity:Client:GetSignalPaper', source, item.info.signal)
             end)
             
             Core.Functions.CreateUseableItem(Config.SignalItem.NameItem, function(source, item)
-                local src = source
-                TriggerClientEvent('sf_camerasecurity:Client:CreateNewCamera', src, Config.SignalItem.Type, false, item.name)
+                TriggerClientEvent('sf_camerasecurity:Client:CreateNewCamera', source, 'Signal', false, item.name)
+            end)
+
+            Core.Functions.CreateUseableItem(Config.PersonalCamera.NameItem, function(source, item)
+                TriggerClientEvent('sf_camerasecurity:Client:CreateNewCamera', source, 'Personal', false, item.name)
+            end)
+
+            Core.Functions.CreateUseableItem(Config.PersonalCamera.TabletItem, function(source, item)
+                TriggerClientEvent('sf_camerasecurity:Client:OpenPersonalCamera', source)
             end)
             
             -- Camera Job Items 
