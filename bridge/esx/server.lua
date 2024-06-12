@@ -10,9 +10,17 @@ end
 -- check if player has job
 function hasJob(src, job)
     local xPlayer = Core.GetPlayerFromId(src)
-    if not Player then return false end
+    if not xPlayer then return false end
 
     return xPlayer.getJob().name == job
+end
+
+-- get identifier
+function getIdenti(src)
+    local xPlayer = Core.GetPlayerFromId(src)
+    if not xPlayer then return false end
+
+    return xPlayer.getIdentifier()
 end
 
 -- check if has money
