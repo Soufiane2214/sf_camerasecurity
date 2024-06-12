@@ -16,12 +16,43 @@ Config.NeedItemFixCam = 'screwdriverset'    -- for job to fix cam
 Config.CameraSignalPaper = 'camera_paper'   -- for citizens to receive signal when create new camera
 Config.VpnItem = 'vpn'                      -- require this item in location wifi to watch camera
 
+-- Player camera
+Config.SignalItem = {
+    NameItem = 'camera_citizen',
+    Prop = 'prop_cctv_cam_01a'
+}
+
+-- Personal camera
+Config.PersonalCamera = {
+    NameItem = 'camera_personal',
+    TabletItem = 'camera_personaltablet',
+    Props = {
+        [1] = 'prop_cctv_cam_06a',
+        [2] = 'prop_cctv_cam_04a',
+        [3] = 'prop_cctv_cam_05a',
+        [4] = 'prop_cctv_cam_02a',
+        [5] = 'prop_cctv_cam_01a',
+        [6] = 'prop_cctv_cam_07a',
+        [7] = 'prop_cctv_cam_01b',
+        [8] = 'prop_cctv_cam_04b',
+        [9] = 'prop_cctv_cam_03a',
+        [10] = 'prop_cctv_cam_04c',
+        [11] = 'prop_cs_cctv',
+        [12] = 'hei_prop_bank_cctv_01',
+        [13] = 'hei_prop_bank_cctv_02',
+        [14] = 'p_cctv_s',
+        [15] = 'prop_snow_cam_03a',
+        [16] = 'prop_spycam'
+    }
+}
+
 -- Settings
 Config.SignalLength = 12   -- how much characters and numbers in signal 
 Config.MoveCamForwardDistance = 0.2     -- this only move camera coords to forward because some times big cam props hide the vision
 Config.DisableWifiSystem = false            -- if you want disable wifi system 
 Config.TimerFixCamera = 10      -- sec (this only for jobs, no fix cam for normal camera)
 Config.EnableWifiIcon = true    -- if you are in zone wifi, is show you a icon wifi up screen
+Config.AutoRepairCameras = true -- to repair all broken camera after server restart
 
 -- shop information
 Config.Shop = {   
@@ -68,7 +99,8 @@ Config.PropListJob = {
 
 Config.DistanceCreateCam = {
     Jobs = 70.0,        -- max distance to put camera for job 
-    SignalCam = 20.0    -- max distance to put camera for normal players 
+    SignalCam = 20.0,   -- max distance to put camera for normal players 
+    PersonalCam = 40.0  -- max distance to put personal camera
 }
 
 -- wifi zones
@@ -77,13 +109,6 @@ Config.WifiZones = {
         Coords = vector3(29.66, -1345.06, 29.5),
         Distance = 10,
     }
-}
-
--- player camera item
-Config.SignalItem = {
-    NameItem = 'camera_citizen',
-    Type = 'Signal',
-    Prop = 'prop_cctv_cam_01a'
 }
 
 -- sens to move camera (left, right..) when you watching
