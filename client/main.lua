@@ -1314,55 +1314,71 @@ function OpenShop()
     local menu = {}
 
     for k,v in ipairs(Config.Shop.Store) do
-        if CheckJob(v.job) then
-            local itemInfo = getItemInfo(v.item)
-            local img = Config.ImageLinkInventory.. (itemInfo.image or itemInfo.name..'.png')
-            menu[#menu +1] = {
-                title = itemInfo.label,
-                description = 'Price: '..v.price..'$',
-                icon = img,
-                image = img,
-                onSelect = function()
-                    local menu2 = {
-                        {
-                            title = 'Pay Cash',
-                            icon = 'money-bill',
-                            onSelect = function()
-                                local input = lib.inputDialog('Item Amount', {
-                                    {type = 'number', icon = 'hashtag', min = 1},
-                                })
-    
-                                if input then
-                                    local amount = tonumber(input[1])
-                                    TriggerServerEvent('sf_camerasecurity:Server:BuyItem', 'cash', v.price, v.item, amount)
-                                else
-                                    lib.showContext('camera_shop_cash_bank')
-                                end
-                            end
-                        },
-                        {
-                            title = 'Pay Bank',
-                            icon = 'building-columns',
-                            onSelect = function()
-                                local input = lib.inputDialog('Item Amount', {
-                                    {type = 'number', icon = 'hashtag', min = 1},
-                                })
-    
-                                if input then
-                                    local amount = tonumber(input[1])
-                                    TriggerServerEvent('sf_camerasecurity:Server:BuyItem', 'bank', v.price, v.item, amount)
-                                else
-                                    lib.showContext('camera_shop_cash_bank')
-                                end
-                            end
-                        },
-                    }
-    
-                    lib.registerContext({id = 'camera_shop_cash_bank', menu = 'camera_shop_menu', canClose = false, title = 'Payment Type', options = menu2})
-                    lib.showContext('camera_shop_cash_bank')
-                end
-            }
+        local hasItems = false
+        local titleID = #menu +1
+
+        if Config.Shop.EnableCategory then
+            menu[titleID] = {title = v.Title, icon = 'list', iconColor = 'red', readOnly = true}
         end
+        
+        for i,t in pairs(v.Items) do           
+            if CheckJob(t.job) then
+                hasItems = true
+                local itemInfo = getItemInfo(t.item)
+                local img = Config.ImageLinkInventory.. (itemInfo.image or itemInfo.name..'.png')
+                menu[#menu +1] = {
+                    title = itemInfo.label,
+                    description = 'Price: '..t.price..'$',
+                    icon = img,
+                    image = img,
+                    onSelect = function()
+                        local menu2 = {
+                            {
+                                title = 'Pay Cash',
+                                icon = 'money-bill',
+                                onSelect = function()
+                                    local input = lib.inputDialog('Item Amount', {
+                                        {type = 'number', icon = 'hashtag', min = 1},
+                                    })
+        
+                                    if input then
+                                        local amount = tonumber(input[1])
+                                        TriggerServerEvent('sf_camerasecurity:Server:BuyItem', 'cash', t.price, t.item, amount)
+                                    else
+                                        lib.showContext('camera_shop_cash_bank')
+                                    end
+                                end
+                            },
+                            {
+                                title = 'Pay Bank',
+                                icon = 'building-columns',
+                                onSelect = function()
+                                    local input = lib.inputDialog('Item Amount', {
+                                        {type = 'number', icon = 'hashtag', min = 1},
+                                    })
+        
+                                    if input then
+                                        local amount = tonumber(input[1])
+                                        TriggerServerEvent('sf_camerasecurity:Server:BuyItem', 'bank', t.price, t.item, amount)
+                                    else
+                                        lib.showContext('camera_shop_cash_bank')
+                                    end
+                                end
+                            },
+                        }
+        
+                        lib.registerContext({id = 'camera_shop_cash_bank', menu = 'camera_shop_menu', canClose = false, title = 'Payment Type', options = menu2})
+                        lib.showContext('camera_shop_cash_bank')
+                    end
+                }
+            end
+        end
+
+        if Config.Shop.EnableCategory then
+            if not hasItems then
+                menu[titleID] = nil
+            end
+        end     
     end
 
     lib.registerContext({id = 'camera_shop_menu', title = 'Camera Shop', options = menu})
