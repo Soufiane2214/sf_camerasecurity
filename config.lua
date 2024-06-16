@@ -1,3 +1,9 @@
+
+-- DISCORD FOR SUPPORT
+-- |||||||||||||||||||||||||||||||||||||||||||||
+-- ||||||| https://discord.gg/dcm4TNtbGQ |||||||
+-- |||||||||||||||||||||||||||||||||||||||||||||
+
 Config = Config or {}
 
 Config.Framework = 'QBCore'     -- ESX / QBCore
@@ -15,6 +21,14 @@ Config.TabletCamViewJobs = 'camera_tablet'  -- for Jobs
 Config.NeedItemFixCam = 'screwdriverset'    -- for job to fix cam
 Config.CameraSignalPaper = 'camera_paper'   -- for citizens to receive signal when create new camera
 Config.VpnItem = 'vpn'                      -- require this item in location wifi to watch camera
+
+-- Settings
+Config.SignalLength = 12   -- how much characters and numbers in signal 
+Config.MoveCamForwardDistance = 0.2     -- this only move camera coords to forward because some times big cam props hide the vision
+Config.DisableWifiSystem = false            -- if you want disable wifi system 
+Config.TimerFixCamera = 10      -- sec (this only for jobs, no fix cam for normal camera)
+Config.EnableWifiIcon = true    -- if you are in zone wifi, is show you a icon wifi up screen
+Config.AutoRepairCameras = true -- to repair all broken camera after server restart
 
 -- Player camera
 Config.SignalItem = {
@@ -46,17 +60,10 @@ Config.PersonalCamera = {
     }
 }
 
--- Settings
-Config.SignalLength = 12   -- how much characters and numbers in signal 
-Config.MoveCamForwardDistance = 0.2     -- this only move camera coords to forward because some times big cam props hide the vision
-Config.DisableWifiSystem = false            -- if you want disable wifi system 
-Config.TimerFixCamera = 10      -- sec (this only for jobs, no fix cam for normal camera)
-Config.EnableWifiIcon = true    -- if you are in zone wifi, is show you a icon wifi up screen
-Config.AutoRepairCameras = true -- to repair all broken camera after server restart
-
 -- shop information
 Config.Shop = {   
     Enable = true,                                        -- to active shop
+    EnableCategory = true,                                -- if you want show titles category in shop
     Label = 'Camera Shop',                                -- name shop
     Icon = 'fa-solid fa-camera',                          -- icon target eye
     Ped = 's_m_y_grip_01',                                -- ped shop
@@ -67,15 +74,31 @@ Config.Shop = {
 
     -- item shop and prices 
     Store = {   
-        {item = 'camera_viewer',            price = 1500},
-        {item = 'vpn',                      price = 1000},
-        {item = 'camera_citizen',           price = 500},   
-        {item = 'camera_pd',                price = 250,    job = {'police'}},
-        {item = 'camera_ems',               price = 250,    job = {'ambulance'}},
-        {item = 'camera_tablet',            price = 1000,   job = {'police', 'ambulance'}},
-        {item = 'screwdriverset',           price = 250,    job = {'police', 'ambulance'}},
-        {item = 'camera_personal',          price = 500},  
-        {item = 'camera_personaltablet',    price = 2000},  
+        {
+            Title = 'Public Items',
+            Items = {
+                {item = 'camera_viewer',            price = 1500},
+                {item = 'vpn',                      price = 1000},
+                {item = 'camera_citizen',           price = 500},
+            }
+        },    
+        {
+            Title = 'Job Items',
+            Items = {
+                {item = 'camera_pd',                price = 250,    job = {'police'}},
+                {item = 'camera_ems',               price = 250,    job = {'ambulance'}},
+                {item = 'camera_tablet',            price = 1000,   job = {'police', 'ambulance'}},
+                {item = 'screwdriverset',           price = 250,    job = {'police', 'ambulance'}},
+            }
+        },   
+        {
+            Title = 'Personal Items',
+            Items = {
+                {item = 'camera_personal',          price = 500},  
+                {item = 'camera_personaltablet',    price = 2000},  
+            } 
+        }
+       
     }
 }
 
