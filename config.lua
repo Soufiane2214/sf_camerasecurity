@@ -10,7 +10,6 @@ Config.Framework = 'QBCore'     -- ESX / QBCore
 
 -- Resources
 Config.Inventory = 'qb-inventory'       -- ox_inventory / qb-inventory   (Note: dont use qb-inventory if your framework esx please)
-Config.ImageLinkInventory = "nui://qb-inventory/html/images/"  -- location images inventory ("nui://qb-inventory/html/images/") / ("nui://ox_inventory/web/images/")
 Config.Target = 'qb-target'     -- ox_target / qb-target
 Config.Notify = 'lib'           -- qb / esx / lib / custom (require to add your custom notify in [sf_camerasecurity/client/utils.lua])
 Config.ProgressBar = 'lib'      -- qb / esx / lib / custom (require to add your custom progressbar in [sf_camerasecurity/client/utils.lua])
