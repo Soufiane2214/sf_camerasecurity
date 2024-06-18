@@ -1,3 +1,4 @@
+local resourceName = GetCurrentResourceName()
 local LoadedProps = {}
 local LoadedNoPropCams = {}
 local CurrentHashCam = `prop_spycam`
@@ -1325,7 +1326,7 @@ function OpenShop()
             if CheckJob(t.job) then
                 hasItems = true
                 local itemInfo = getItemInfo(t.item)
-                local img = Config.ImageLinkInventory.. (itemInfo.image or itemInfo.name..'.png')
+                local img = "nui://"..resourceName.."/html/images/"..itemInfo.name..".png"
                 menu[#menu +1] = {
                     title = itemInfo.label,
                     description = 'Price: '..t.price..'$',
