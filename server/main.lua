@@ -106,10 +106,10 @@ RegisterNetEvent('sf_camerasecurity:Server:RemoveStaticCam',function(id)
         if v.id == id then 
             if Setting.Type == 'Job' then
                 for i,s in pairs(Config.JobItems) do
-                    if type(s.Job) == 'table' then                      
-                        if type(Setting.Job) == 'table' then
-                            local loopbreak = false
-                            for n,m in pairs(Setting.Job) do
+                    if type(Setting.Job) == 'table' then
+                        local loopbreak = false
+                        for n,m in pairs(Setting.Job) do
+                            if type(s.Job) == 'table' then
                                 for t,p in pairs(s.Job) do
                                     if m == p then
                                         SetTimeout(2000, function()
@@ -127,10 +127,25 @@ RegisterNetEvent('sf_camerasecurity:Server:RemoveStaticCam',function(id)
                                     end
                                     if loopbreak then break end
                                 end
-                                if loopbreak then break end
-                            end
-                        else
-                            local loopbreak = false
+                            else
+                                if m == s.Job then
+                                    SetTimeout(2000, function()
+                                        if Config.Inventory == 'qb-inventory' then
+                                            if Config.Framework == 'QBCore' then
+                                                Player.Functions.AddItem(s.ItemName, 1)
+                                                TriggerClientEvent('inventory:client:ItemBox', src, Core.Shared.Items[s.ItemName], "add", 1)  
+                                            end                                      
+                                        elseif Config.Inventory == 'ox_inventory' then
+                                            exports.ox_inventory:AddItem(src, s.ItemName, 1)
+                                        end                                  
+                                    end) 
+                                    break
+                                end
+                            end                            
+                        end
+                    else
+                        local loopbreak = false
+                        if type(s.Job) == 'table' then
                             for t,p in pairs(s.Job) do
                                 if Setting.Job == p then
                                     SetTimeout(2000, function()
@@ -148,24 +163,23 @@ RegisterNetEvent('sf_camerasecurity:Server:RemoveStaticCam',function(id)
                                 end
                                 if loopbreak then break end
                             end
-                        end               
-                    else
-                        for n,m in pairs(Setting.Job) do
-                            if s.Job == m then
+                        else
+                            if Setting.Job == s.Job then
                                 SetTimeout(2000, function()
                                     if Config.Inventory == 'qb-inventory' then
                                         if Config.Framework == 'QBCore' then
                                             Player.Functions.AddItem(s.ItemName, 1)
-                                            TriggerClientEvent('inventory:client:ItemBox', src, Core.Shared.Items[s.ItemName], "add", 1) 
+                                            TriggerClientEvent('inventory:client:ItemBox', src, Core.Shared.Items[s.ItemName], "add", 1)  
                                         end                                      
                                     elseif Config.Inventory == 'ox_inventory' then
                                         exports.ox_inventory:AddItem(src, s.ItemName, 1)
-                                    end               
-                                end)    
+                                    end                                  
+                                end) 
+                                break
                             end
-                        end            
-                    end
-                end
+                        end       
+                    end   
+                end           
             elseif Setting.Type == 'Signal' then
                 SetTimeout(2000, function()
                     if Config.Inventory == 'qb-inventory' then
