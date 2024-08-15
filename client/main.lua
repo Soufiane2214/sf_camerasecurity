@@ -1325,52 +1325,56 @@ function OpenShop()
             if CheckJob(t.job) then
                 hasItems = true
                 local itemInfo = getItemInfo(t.item)
-                local img = "nui://"..GetCurrentResourceName().."/html/images/"..itemInfo.name..".png"
-                menu[#menu +1] = {
-                    title = itemInfo.label,
-                    description = 'Price: '..t.price..'$',
-                    icon = img,
-                    image = img,
-                    onSelect = function()
-                        local menu2 = {
-                            {
-                                title = 'Pay Cash',
-                                icon = 'money-bill',
-                                onSelect = function()
-                                    local input = lib.inputDialog('Item Amount', {
-                                        {type = 'number', icon = 'hashtag', min = 1},
-                                    })
-        
-                                    if input then
-                                        local amount = tonumber(input[1])
-                                        TriggerServerEvent('sf_camerasecurity:Server:BuyItem', 'cash', t.price, t.item, amount)
-                                    else
-                                        lib.showContext('camera_shop_cash_bank')
+                if itemInfo then
+                    local img = "nui://"..GetCurrentResourceName().."/html/images/"..itemInfo.name..".png"
+                    menu[#menu +1] = {
+                        title = itemInfo.label,
+                        description = 'Price: '..t.price..'$',
+                        icon = img,
+                        image = img,
+                        onSelect = function()
+                            local menu2 = {
+                                {
+                                    title = 'Pay Cash',
+                                    icon = 'money-bill',
+                                    onSelect = function()
+                                        local input = lib.inputDialog('Item Amount', {
+                                            {type = 'number', icon = 'hashtag', min = 1},
+                                        })
+            
+                                        if input then
+                                            local amount = tonumber(input[1])
+                                            TriggerServerEvent('sf_camerasecurity:Server:BuyItem', 'cash', t.price, t.item, amount)
+                                        else
+                                            lib.showContext('camera_shop_cash_bank')
+                                        end
                                     end
-                                end
-                            },
-                            {
-                                title = 'Pay Bank',
-                                icon = 'building-columns',
-                                onSelect = function()
-                                    local input = lib.inputDialog('Item Amount', {
-                                        {type = 'number', icon = 'hashtag', min = 1},
-                                    })
-        
-                                    if input then
-                                        local amount = tonumber(input[1])
-                                        TriggerServerEvent('sf_camerasecurity:Server:BuyItem', 'bank', t.price, t.item, amount)
-                                    else
-                                        lib.showContext('camera_shop_cash_bank')
+                                },
+                                {
+                                    title = 'Pay Bank',
+                                    icon = 'building-columns',
+                                    onSelect = function()
+                                        local input = lib.inputDialog('Item Amount', {
+                                            {type = 'number', icon = 'hashtag', min = 1},
+                                        })
+            
+                                        if input then
+                                            local amount = tonumber(input[1])
+                                            TriggerServerEvent('sf_camerasecurity:Server:BuyItem', 'bank', t.price, t.item, amount)
+                                        else
+                                            lib.showContext('camera_shop_cash_bank')
+                                        end
                                     end
-                                end
-                            },
-                        }
-        
-                        lib.registerContext({id = 'camera_shop_cash_bank', menu = 'camera_shop_menu', canClose = false, title = 'Payment Type', options = menu2})
-                        lib.showContext('camera_shop_cash_bank')
-                    end
-                }
+                                },
+                            }
+            
+                            lib.registerContext({id = 'camera_shop_cash_bank', menu = 'camera_shop_menu', canClose = false, title = 'Payment Type', options = menu2})
+                            lib.showContext('camera_shop_cash_bank')
+                        end
+                    }
+                else
+                    print(t.item)
+                end           
             end
         end
 
