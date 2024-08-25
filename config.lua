@@ -9,7 +9,7 @@ Config = Config or {}
 Config.Framework = 'QBCore'     -- ESX / QBCore
 
 -- Resources
-Config.Inventory = 'qb-inventory'       -- ox_inventory / qb-inventory   (Note: dont use qb-inventory if your framework esx please)
+Config.Inventory = 'qb-inventory'       -- ox_inventory / qs-inventory / qb-inventory   (Note: dont use qb-inventory if your framework esx please)
 Config.Target = 'qb-target'     -- ox_target / qb-target
 Config.Notify = 'lib'           -- qb / esx / lib / custom (require to add your custom notify in [sf_camerasecurity/client/utils.lua])
 Config.ProgressBar = 'lib'      -- qb / esx / lib / custom (require to add your custom progressbar in [sf_camerasecurity/client/utils.lua])
