@@ -24,7 +24,7 @@ For all support questions, ask in our [Discord](https://discord.gg/dcm4TNtbGQ) s
 
 
 ### Be careful, if you are use ``ox_inventory`` in QBCore framework dont add items in ``qb-core`` resource, require to add items in ``ox_inventory/data/items.lua`` ONLY.
-### qb-inventory
+### qb-inventory / qs-inventory
 #### Add Items to **(qb-core/shared/items.lua)**
 ```language
 -- // Cameras
