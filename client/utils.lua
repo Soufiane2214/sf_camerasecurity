@@ -1,9 +1,16 @@
 oxItems = {}
+qsItems = {}
 
 CreateThread(function()
     if Config.Inventory == 'ox_inventory' then
         for item, data in pairs(exports.ox_inventory:Items()) do
             oxItems[item] = deepCopy(data)
+        end
+    end
+
+    if Config.Inventory == 'qs-inventory' then
+        for item, data in pairs(exports['qs-inventory']:GetItemList()) do
+            qsItems[item] = deepCopy(data)
         end
     end
 end)
@@ -47,6 +54,8 @@ function getItemInfo(item)
         return Core.Shared.Items[item]
     elseif Config.Inventory == 'ox_inventory' then
         return oxItems[item]
+    elseif Config.Inventory == 'qs-inventory' then
+        return qsItems[item]
     end
 end
 
