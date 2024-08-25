@@ -73,6 +73,8 @@ RegisterNetEvent('sf_camerasecurity:Server:SaveNewCam',function(name, setting, c
             end       
         elseif Config.Inventory == 'ox_inventory' then
             exports.ox_inventory:RemoveItem(src, item, 1)
+        elseif Config.Inventory == 'qs-inventory' then
+            exports['qs-inventory']:RemoveItem(src, item, 1)
         end
         if tonumber(setting.ShowProp) == 1 then
             TriggerClientEvent('sf_camerasecurity:Client:LoadPropCamera', -1, setting.Prop, setting.PropCoords.Coords, setting.PropCoords.Rotation, id, true)
@@ -89,6 +91,8 @@ RegisterNetEvent('sf_camerasecurity:Server:SaveNewCam',function(name, setting, c
                     end               
                 elseif Config.Inventory == 'ox_inventory' then
                     exports.ox_inventory:AddItem(src, Config.CameraSignalPaper, 1, info)
+                elseif Config.Inventory == 'qs-inventory' then
+                    exports['qs-inventory']:AddItem(src, Config.CameraSignalPaper, 1, nil, info)
                 end                        
             end) 
         end     
@@ -120,6 +124,8 @@ RegisterNetEvent('sf_camerasecurity:Server:RemoveStaticCam',function(id)
                                                 end                                      
                                             elseif Config.Inventory == 'ox_inventory' then
                                                 exports.ox_inventory:AddItem(src, s.ItemName, 1)
+                                            elseif Config.Inventory == 'qs-inventory' then
+                                                exports['qs-inventory']:AddItem(src, s.ItemName, 1)
                                             end                                  
                                         end) 
                                         loopbreak = true
@@ -137,6 +143,8 @@ RegisterNetEvent('sf_camerasecurity:Server:RemoveStaticCam',function(id)
                                             end                                      
                                         elseif Config.Inventory == 'ox_inventory' then
                                             exports.ox_inventory:AddItem(src, s.ItemName, 1)
+                                        elseif Config.Inventory == 'qs-inventory' then
+                                            exports['qs-inventory']:AddItem(src, s.ItemName, 1)
                                         end                                  
                                     end) 
                                     break
@@ -156,6 +164,8 @@ RegisterNetEvent('sf_camerasecurity:Server:RemoveStaticCam',function(id)
                                             end                                      
                                         elseif Config.Inventory == 'ox_inventory' then
                                             exports.ox_inventory:AddItem(src, s.ItemName, 1)
+                                        elseif Config.Inventory == 'qs-inventory' then
+                                            exports['qs-inventory']:AddItem(src, s.ItemName, 1)
                                         end                                  
                                     end) 
                                     loopbreak = true
@@ -173,6 +183,8 @@ RegisterNetEvent('sf_camerasecurity:Server:RemoveStaticCam',function(id)
                                         end                                      
                                     elseif Config.Inventory == 'ox_inventory' then
                                         exports.ox_inventory:AddItem(src, s.ItemName, 1)
+                                    elseif Config.Inventory == 'qs-inventory' then
+                                        exports['qs-inventory']:AddItem(src, s.ItemName, 1)
                                     end                                  
                                 end) 
                                 break
@@ -189,6 +201,8 @@ RegisterNetEvent('sf_camerasecurity:Server:RemoveStaticCam',function(id)
                         end                      
                     elseif Config.Inventory == 'ox_inventory' then
                         exports.ox_inventory:AddItem(src, Config.SignalItem.ItemName, 1)
+                    elseif Config.Inventory == 'qs-inventory' then
+                        exports['qs-inventory']:AddItem(src, Config.SignalItem.ItemName, 1)
                     end                
                 end)        
             end
@@ -222,6 +236,10 @@ RegisterNetEvent('sf_camerasecurity:Server:BuyItem',function(typePay, price, ite
         elseif Config.Inventory == 'ox_inventory' then
             exports.ox_inventory:AddItem(src, item, amountItem)
             local labelItem = lib.callback.await('sf_camerasecurity:Server:GetItemsOX', src, item).label
+            TriggerClientEvent('sf_camerasecurity:client:notify', src, '('..labelItem..') bought successfully', 'success')
+        elseif Config.Inventory == 'qs-inventory' then
+            exports['qs-inventory']:AddItem(src, item, amountItem)
+            local labelItem = exports['qs-inventory']:GetItemLabel(item)
             TriggerClientEvent('sf_camerasecurity:client:notify', src, '('..labelItem..') bought successfully', 'success')
         end             
     else
@@ -266,6 +284,12 @@ lib.callback.register('sf_camerasecurity:Server:HasItem', function(source, item)
         end       
     elseif Config.Inventory == 'ox_inventory' then        
         return exports.ox_inventory:GetSlotWithItem(source, item)
+    elseif Config.Inventory == 'qs-inventory' then
+        local hasItem = exports['qs-inventory']:GetItemTotalAmount(source, item)
+        if hasItem and hasItem >= 1 then
+            return true
+        end
+        return false
     end
 end)
 
@@ -433,7 +457,55 @@ CreateThread(function()
                     end     
                 end)
             end
-        end  
+        end 
+    elseif Config.Inventory == 'qs-inventory' then
+        exports['qs-inventory']:CreateUsableItem(Config.RemoteTablet, function(source, item)
+            TriggerClientEvent('sf_camerasecurity:Client:ConnectCamBySignal', source)
+        end)
+        
+        exports['qs-inventory']:CreateUsableItem(Config.TabletCamViewJobs, function(source, item)
+            TriggerClientEvent('sf_camerasecurity:Client:OpenStaticCams', source)
+        end)
+        
+        exports['qs-inventory']:CreateUsableItem(Config.CameraSignalPaper, function(source, item)
+            TriggerClientEvent('sf_camerasecurity:Client:GetSignalPaper', source, item.info.signal)
+        end)
+        
+        exports['qs-inventory']:CreateUsableItem(Config.SignalItem.NameItem, function(source, item)
+            TriggerClientEvent('sf_camerasecurity:Client:CreateNewCamera', source, 'Signal', false, Config.SignalItem.NameItem)
+        end)
+
+        exports['qs-inventory']:CreateUsableItem(Config.PersonalCamera.NameItem, function(source, item)
+            TriggerClientEvent('sf_camerasecurity:Client:CreateNewCamera', source, 'Personal', false, Config.PersonalCamera.NameItem)
+        end)
+
+        exports['qs-inventory']:CreateUsableItem(Config.PersonalCamera.TabletItem, function(source, item)
+            TriggerClientEvent('sf_camerasecurity:Client:OpenPersonalCamera', source)
+        end)
+        
+        -- Camera Job Items 
+        for k,v in pairs(Config.JobItems) do
+            exports['qs-inventory']:CreateUsableItem(v.ItemName, function(source, item)
+                local src = source
+                if v.Type == 'Job' then
+                    if type(v.Job) == "table" then
+                        local HaveJob = false 
+                        for i,t in pairs(v.Job) do if hasJob(src, t) then HaveJob = true break end end          
+                        if HaveJob then              
+                            TriggerClientEvent('sf_camerasecurity:Client:CreateNewCamera', src, v.Type, v.Job, item.name)
+                        else
+                            TriggerClientEvent('sf_camerasecurity:client:notify', src, 'Not have authorization to this camera', 'error')
+                        end
+                    else
+                        if hasJob(src, v.Job) then
+                            TriggerClientEvent('sf_camerasecurity:Client:CreateNewCamera', src, v.Type, v.Job, item.name)
+                        else
+                            TriggerClientEvent('sf_camerasecurity:client:notify', src, 'Not have authorization to this camera', 'error')
+                        end
+                    end           
+                end     
+            end)
+        end
     end
 end)
 
