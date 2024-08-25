@@ -599,6 +599,8 @@ function WatchCam(Name, Coords, Rotation, Action, Cam_ID, DataCams, ID)
             LocalPlayer.state:set('inv_busy', true, false)
         elseif Config.Inventory == 'ox_inventory' then
             LocalPlayer.state:set('invBusy', true, false)
+        elseif Config.Inventory == 'qs-inventory' then
+            exports['qs-inventory']:setInventoryDisabled(true)
         end
         CurrentCamID = ID
         local LoadingCams = {} 
@@ -921,10 +923,12 @@ function ExitCamera()
         DoScreenFadeIn(500)      
         while not IsScreenFadedIn() do Wait(0) end
         CurrentCam = nil
-        if Config.Inventory == 'qb-inventory' then
+        if Config.Inventory == 'qb-inventory' or Config.Inventory == 'qs-inventory' then
             LocalPlayer.state:set('inv_busy', false, false)
         elseif Config.Inventory == 'ox_inventory' then
             LocalPlayer.state:set('invBusy', false, false)
+        elseif Config.Inventory == 'qs-inventory' then
+            exports['qs-inventory']:setInventoryDisabled(false)
         end
     elseif Active then
         Active = false
