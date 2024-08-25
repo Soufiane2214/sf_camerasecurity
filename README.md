@@ -38,6 +38,129 @@ camera_personaltablet = { name = 'camera_personaltablet', label = 'Personal CamV
 camera_personal = { name = 'camera_personal', label = 'Personal Camera', weight = 3000, type = 'item', image = 'camera_personal.png', unique = true, useable = true, shouldClose = true, combinable = nil, description = '' },
 vpn = {name = 'vpn', label = 'VPN Router', weight = 1000, type = 'item', image = 'vpn.png', unique = true, useable = false, shouldClose = false, combinable = nil, description = ''},
 ```
+
+### qs-inventory
+#### Add Items to **qs-inventory\shared\item.lua**
+```language
+-- // Cameras
+    ["camera_pd"] = {
+        ["name"] = 'camera_pd',
+        ["label"] = 'PD Camera',
+        ["weight"] = 3000,
+        ["type"] = 'item',
+        ["image"] = 'camera_pd.png',
+        ["unique"] = true,
+        ["useable"] = true,
+        ["shouldClose"] = true,
+        ["combinable"] = nil,
+        ["description"] = ''
+    },
+
+    ["camera_ems"] = {
+        ["name"] = 'camera_ems',
+        ["label"] = 'EMS Camera',
+        ["weight"] = 3000,
+        ["type"] = 'item',
+        ["image"] = 'camera_ems.png',
+        ["unique"] = true,
+        ["useable"] = true,
+        ["shouldClose"] = true,
+        ["combinable"] = nil,
+        ["description"] = ''
+    },
+
+    ["camera_citizen"] = {
+        ["name"] = 'camera_citizen',
+        ["label"] = 'Camera',
+        ["weight"] = 3000,
+        ["type"] = 'item',
+        ["image"] = 'camera_citizen.png',
+        ["unique"] = true,
+        ["useable"] = true,
+        ["shouldClose"] = true,
+        ["combinable"] = nil,
+        ["description"] = ''
+    },
+
+    ["camera_viewer"] = {
+        ["name"] = 'camera_viewer',
+        ["label"] = 'Camera Viewer',
+        ["weight"] = 1000,
+        ["type"] = 'item',
+        ["image"] = 'camera_viewer.png',
+        ["unique"] = true,
+        ["useable"] = true,
+        ["shouldClose"] = true,
+        ["combinable"] = nil,
+        ["description"] = ''
+    },
+
+    ["camera_paper"] = {
+        ["name"] = 'camera_paper',
+        ["label"] = 'Camera Signal Paper',
+        ["weight"] = 200,
+        ["type"] = 'item',
+        ["image"] = 'camera_paper.png',
+        ["unique"] = true,
+        ["useable"] = true,
+        ["shouldClose"] = true,
+        ["combinable"] = nil,
+        ["description"] = ''
+    },
+
+    ["camera_tablet"] = {
+        ["name"] = 'camera_tablet',
+        ["label"] = 'CamView Tablet',
+        ["weight"] = 2000,
+        ["type"] = 'item',
+        ["image"] = 'camera_tablet.png',
+        ["unique"] = true,
+        ["useable"] = true,
+        ["shouldClose"] = true,
+        ["combinable"] = nil,
+        ["description"] = ''
+    },
+
+    ["camera_personaltablet"] = {
+        ["name"] = 'camera_personaltablet',
+        ["label"] = 'Personal CamView',
+        ["weight"] = 2000,
+        ["type"] = 'item',
+        ["image"] = 'camera_personaltablet.png',
+        ["unique"] = true,
+        ["useable"] = true,
+        ["shouldClose"] = true,
+        ["combinable"] = nil,
+        ["description"] = ''
+    },
+
+    ["camera_personal"] = {
+        ["name"] = 'camera_personal',
+        ["label"] = 'Personal Camera',
+        ["weight"] = 3000,
+        ["type"] = 'item',
+        ["image"] = 'camera_personal.png',
+        ["unique"] = true,
+        ["useable"] = true,
+        ["shouldClose"] = true,
+        ["combinable"] = nil,
+        ["description"] = ''
+    },
+
+    ["vpn"] = {
+        ["name"] = 'vpn',
+        ["label"] = 'VPN Router',
+        ["weight"] = 1000,
+        ["type"] = 'item',
+        ["image"] = 'vpn.png',
+        ["unique"] = true,
+        ["useable"] = false,
+        ["shouldClose"] = false,
+        ["combinable"] = nil,
+        ["description"] = ''
+    }
+```
+
 ### ox_inventory
 #### Add Items to **(ox_inventory/data/items.lua)**
 ```language
