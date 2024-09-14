@@ -28,6 +28,7 @@ Config.DisableWifiSystem = false            -- if you want disable wifi system
 Config.TimerFixCamera = 10      -- sec (this only for jobs, no fix cam for normal camera)
 Config.EnableWifiIcon = true    -- if you are in zone wifi, is show you a icon wifi up screen
 Config.AutoRepairCameras = true -- to repair all broken camera after server restart
+Config.ScanLine = false    -- set this false if you dont want show scanline when you watch camera
 
 -- Player camera
 Config.SignalItem = {
