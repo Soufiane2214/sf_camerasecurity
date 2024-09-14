@@ -47,7 +47,7 @@ end)
 
 AddEventHandler('CEventGunShot', function(witnesses, ped, coords)
     if PlayerPedId() ~= ped then return end
-    local Hit, Coords, Entity = RayCastGamePlayCamera(70.0)                     
+    local Hit, Coords, Entity = RayCastGamePlayCamera(100.0)                     
     if Hit then                                                                        
         if DoesEntityExist(Entity) then
             for k,v in pairs(LoadedProps) do
@@ -222,6 +222,7 @@ RegisterNetEvent('sf_camerasecurity:Client:OpenStaticCams',function()
                         end
                     else              
                         if hasJob(Settings.Job) then
+                            DataCams[#DataCams +1] = v
                             CanShow = true
                         end
                     end
@@ -325,11 +326,14 @@ RegisterNetEvent('sf_camerasecurity:Client:OpenPersonalCamera',function(result, 
     
     if result then
         local Menu = {} 
+        local DataCams = {}
         for k, v in pairs(result) do
             local setting = json.decode(v.setting)
             if setting.Type == 'Personal' and setting.owned == myIdentifier then
-                local stat = (tonumber(setting.Broken) == 1) and 'Offline 🔴' or 'Online 🟢'
-                Menu[#Menu +1] = {
+                DataCams[#DataCams +1] = v
+                local stat = (tonumber(setting.Broken) == 1) and 'Offline 🔴' or 'Online 🟢'    
+                local Cam_ID = #Menu +1        
+                Menu[Cam_ID] = {
                     title = v.name,
                     description = 'Status: '..stat,
                     icon = (setting.Icon and setting.Icon ~= '') and setting.Icon or 'camera',
@@ -340,7 +344,7 @@ RegisterNetEvent('sf_camerasecurity:Client:OpenPersonalCamera',function(result, 
                             title = 'Watch',
                             icon = 'camera',
                             onSelect = function()
-                                WatchCam(v.name, v.coords, v.rot, setting, false, false, v.id)
+                                WatchCam(v.name, v.coords, v.rot, setting, Cam_ID, DataCams, v.id)
                             end
                         }
 
@@ -436,6 +440,16 @@ RegisterNetEvent('sf_camerasecurity:Client:OpenPersonalCamera',function(result, 
 end)
 
 -- Functions
+function setInvenBusy(bool)
+    if Config.Inventory == 'qb-inventory' then
+        LocalPlayer.state:set('inv_busy', bool, false)
+    elseif Config.Inventory == 'ox_inventory' then
+        LocalPlayer.state:set('invBusy', bool, false)
+    elseif Config.Inventory == 'qs-inventory' then
+        exports['qs-inventory']:setInventoryDisabled(bool)
+    end
+end
+
 function LoadingCameraObjects()
     lib.callback('sf_camerasecurity:Server:GetStaticCams', false, function(Result)
         if Result then
@@ -595,22 +609,17 @@ end
 
 function WatchCam(Name, Coords, Rotation, Action, Cam_ID, DataCams, ID)
     if not InCam then
-        if Config.Inventory == 'qb-inventory' then
-            LocalPlayer.state:set('inv_busy', true, false)
-        elseif Config.Inventory == 'ox_inventory' then
-            LocalPlayer.state:set('invBusy', true, false)
-        elseif Config.Inventory == 'qs-inventory' then
-            exports['qs-inventory']:setInventoryDisabled(true)
-        end
+        setInvenBusy(true)
         CurrentCamID = ID
         local LoadingCams = {} 
         local CuurentNumberCam 
         if Action.Type == 'Job' then
             CuurentNumberCam = Cam_ID
             for _, datacam in pairs(DataCams) do LoadingCams[_] = datacam end
-        elseif Action.Type == 'Signal' then
-            CuurentNumberCam = ''
         elseif Action.Type == 'Personal' then
+            CuurentNumberCam = Cam_ID
+            for _, datacam in pairs(DataCams) do LoadingCams[_] = datacam end
+        elseif Action.Type == 'Signal' then
             CuurentNumberCam = ''
         end        
         DoScreenFadeOut(500)
@@ -623,8 +632,10 @@ function WatchCam(Name, Coords, Rotation, Action, Cam_ID, DataCams, ID)
         SetCamCoord(CurrentCam, ForwardCoords.x,ForwardCoords.y,ForwardCoords.z)
         SetCamRot(CurrentCam, rot.x,rot.y,rot.z, 2)
         SetFocusPosAndVel(ForwardCoords.x,ForwardCoords.y,ForwardCoords.z,0,0,0)
-        SetTimecycleModifier("scanline_cam_cheap")
-        SetTimecycleModifierStrength(2.0)
+        if Config.ScanLine then
+            SetTimecycleModifier("scanline_cam_cheap")
+            SetTimecycleModifierStrength(2.0)
+        end     
         RenderScriptCams(true, false, 0, 1, 0)
         local s1, s2 = GetStreetNameAtCoord(coords.x, coords.y, coords.z)
         local street = GetStreetNameFromHashKey(s1)
@@ -643,7 +654,7 @@ function WatchCam(Name, Coords, Rotation, Action, Cam_ID, DataCams, ID)
         local RighthingMove = 0
         local Clicked = false
         while InCam do
-            local instructions = CreateInstuctionScaleform("instructional_buttons", Action.Type == 'Job')
+            local instructions = CreateInstuctionScaleform("instructional_buttons", Action.Type == 'Job' or Action.Type == 'Personal')
             DrawScaleformMovieFullscreen(instructions, 255, 255, 255, 255, 0)
             DisableActions()
             if tonumber(Action.CanMove) == 1 then
@@ -680,7 +691,7 @@ function WatchCam(Name, Coords, Rotation, Action, Cam_ID, DataCams, ID)
                 end      
             end 
 
-            if Action.Type == 'Job' then
+            if Action.Type == 'Job' or Action.Type == 'Personal' then
                 -- NEXT CAM
                 if IsControlJustPressed(0, 223) and (not IsControlPressed(0, 222)) then
                     if not Clicked then
@@ -708,7 +719,9 @@ function WatchCam(Name, Coords, Rotation, Action, Cam_ID, DataCams, ID)
                         SendNUIMessage({
                             type = "disablecam",
                         })
-                        ClearTimecycleModifier("scanline_cam_cheap")
+                        if Config.ScanLine then
+                            ClearTimecycleModifier("scanline_cam_cheap")
+                        end
                         RenderScriptCams(false, false, 0, 1, 0)
                         DestroyCam(CurrentCam, false)
                         CurrentCam = CreateCam("DEFAULT_SCRIPTED_CAMERA", 1)
@@ -721,8 +734,10 @@ function WatchCam(Name, Coords, Rotation, Action, Cam_ID, DataCams, ID)
                         SetCamCoord(CurrentCam, ForwardCoords.x,ForwardCoords.y,ForwardCoords.z)
                         SetCamRot(CurrentCam, rot.x,rot.y,rot.z, 2)
                         SetFocusPosAndVel(ForwardCoords.x,ForwardCoords.y,ForwardCoords.z,0,0,0)
-                        SetTimecycleModifier("scanline_cam_cheap")
-                        SetTimecycleModifierStrength(2.0)
+                        if Config.ScanLine then
+                            SetTimecycleModifier("scanline_cam_cheap")
+                            SetTimecycleModifierStrength(2.0)
+                        end                
                         RenderScriptCams(true, false, 0, 1, 0)
                         s1, s2 = GetStreetNameAtCoord(coords.x, coords.y, coords.z)
                         street = GetStreetNameFromHashKey(s1)                
@@ -910,8 +925,10 @@ function ExitCamera()
     if InCam and (CurrentCam ~= nil) then
         InCam = false
         DoScreenFadeOut(500)
-        while not IsScreenFadedOut() do Wait(0) end     
-        ClearTimecycleModifier("scanline_cam_cheap")
+        while not IsScreenFadedOut() do Wait(0) end    
+        if Config.ScanLine then
+            ClearTimecycleModifier("scanline_cam_cheap")
+        end    
         RenderScriptCams(false, false, 0, 1, 0)
         DestroyCam(CurrentCam, false)
         SetFocusEntity(PlayerPedId())
@@ -923,13 +940,7 @@ function ExitCamera()
         DoScreenFadeIn(500)      
         while not IsScreenFadedIn() do Wait(0) end
         CurrentCam = nil
-        if Config.Inventory == 'qb-inventory' or Config.Inventory == 'qs-inventory' then
-            LocalPlayer.state:set('inv_busy', false, false)
-        elseif Config.Inventory == 'ox_inventory' then
-            LocalPlayer.state:set('invBusy', false, false)
-        elseif Config.Inventory == 'qs-inventory' then
-            exports['qs-inventory']:setInventoryDisabled(false)
-        end
+        setInvenBusy(false)
     elseif Active then
         Active = false
         DeleteEntity(spyCam)
@@ -1011,22 +1022,32 @@ function StartLineCreate(thetype)
     end
     local InLoadingProp = false
     CreateThread(function()
+        local colorGreen = {r = 0, g = 255, b = 0, a = 200} 
+        local colorRed = {r = 255, g = 0, b = 0, a = 200} 
+        local canCreateCam = false
         while Active do
-            local hit, coords, entity = RayCastGamePlayCamera(DistanceCamCreate)
+            local hit, coords, entity = RayCastGamePlayCamera(500.0)
             local playerPed = PlayerPedId()
-            local position = GetEntityCoords(playerPed)
-            local color = {r = 255, g = 0, b = 0, a = 200} 
-            if hit and #(position - vector3(coords.x, coords.y, coords.z)) <= DistanceCamCreate then
+            local position = GetEntityCoords(playerPed)      
+            if hit then
                 InHit = true
 
                 local instructions = CreateInstuctionScaleformCustom("instructional_buttons", KeysTable)
                 DrawScaleformMovieFullscreen(instructions, 255, 255, 255, 255, 0)
 
-                -- Outline Prop Camera
-                SetEntityDrawOutline(spyCam, true)
-                SetEntityDrawOutlineColor(color.r, color.g, color.b, color.a)
+                if #(position - vector3(coords.x, coords.y, coords.z)) <= DistanceCamCreate then
+                    canCreateCam = true
+                    SetEntityDrawOutline(spyCam, true)
+                    SetEntityDrawOutlineColor(colorGreen.r, colorGreen.g, colorGreen.b, colorGreen.a)
 
-                DrawLine(position.x, position.y, position.z, coords.x, coords.y, coords.z, color.r, color.g, color.b, color.a)
+                    DrawLine(position.x, position.y, position.z, coords.x, coords.y, coords.z, colorGreen.r, colorGreen.g, colorGreen.b, colorGreen.a)
+                else
+                    canCreateCam = false
+                    SetEntityDrawOutline(spyCam, true)
+                    SetEntityDrawOutlineColor(colorRed.r, colorRed.g, colorRed.b, colorRed.a)
+
+                    DrawLine(position.x, position.y, position.z, coords.x, coords.y, coords.z, colorRed.r, colorRed.g, colorRed.b, colorRed.a)
+                end     
                 
                 if not UIShowed then 
                     UIShowed = true
@@ -1038,31 +1059,37 @@ function StartLineCreate(thetype)
                 -- SET OBJECT IN WALL
                 SetEntityCoords(spyCam, coords.x, coords.y, coords.z, true, true, true)
 
-                -- ROTATE UP
-                if IsControlPressed(0, 172) then
-                    SetEntityRotation(spyCam, GetEntityRotation.x - Config.Sens.Up, GetEntityRotation.y, GetEntityRotation.z, 2, 1)
-                end
+                if canCreateCam then
+                    -- ROTATE UP
+                    if IsControlPressed(0, 172) then
+                        SetEntityRotation(spyCam, GetEntityRotation.x - Config.Sens.Up, GetEntityRotation.y, GetEntityRotation.z, 2, 1)
+                    end
 
-                -- ROTATE DOWN
-                if IsControlPressed(0, 173) then
-                    SetEntityRotation(spyCam, GetEntityRotation.x + Config.Sens.Down, GetEntityRotation.y, GetEntityRotation.z, 2, 1)
-                end
+                    -- ROTATE DOWN
+                    if IsControlPressed(0, 173) then
+                        SetEntityRotation(spyCam, GetEntityRotation.x + Config.Sens.Down, GetEntityRotation.y, GetEntityRotation.z, 2, 1)
+                    end
 
-                -- ROTATE LEFT
-                if IsControlPressed(0, 174) then
-                    SetEntityRotation(spyCam, GetEntityRotation.x, GetEntityRotation.y, GetEntityRotation.z - Config.Sens.Left, 2, 1)
-                end
+                    -- ROTATE LEFT
+                    if IsControlPressed(0, 174) then
+                        SetEntityRotation(spyCam, GetEntityRotation.x, GetEntityRotation.y, GetEntityRotation.z - Config.Sens.Left, 2, 1)
+                    end
 
-                -- ROTATE RIGHT
-                if IsControlPressed(0, 175) then
-                    SetEntityRotation(spyCam, GetEntityRotation.x, GetEntityRotation.y, GetEntityRotation.z + Config.Sens.Right, 2, 1)
-                end
-
+                    -- ROTATE RIGHT
+                    if IsControlPressed(0, 175) then
+                        SetEntityRotation(spyCam, GetEntityRotation.x, GetEntityRotation.y, GetEntityRotation.z + Config.Sens.Right, 2, 1)
+                    end             
+                end  
+                
                 -- To Add Camera
-                if IsControlPressed(0, 38) then -- E
-                    CurrentPlayerCoordDistance = GetEntityCoords(PlayerPedId())
-                    PlaceCam()
-                    return
+                if IsControlJustReleased(0, 38) --[[ IsControlPressed(0, 38) ]] then -- E
+                    if canCreateCam then
+                        CurrentPlayerCoordDistance = GetEntityCoords(PlayerPedId())
+                        PlaceCam()
+                        return
+                    else
+                        notify('you cannot place camera in this distance', 'error', 2000)
+                    end                        
                 end
             else
                 if UIShowed then 
