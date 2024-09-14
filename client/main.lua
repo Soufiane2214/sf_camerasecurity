@@ -1403,8 +1403,6 @@ function OpenShop()
                             lib.showContext('camera_shop_cash_bank')
                         end
                     }
-                else
-                    print(t.item)
                 end           
             end
         end
