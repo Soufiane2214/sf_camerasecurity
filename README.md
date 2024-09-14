@@ -1,10 +1,6 @@
-### [buy me coffe](https://buymeacoffee.com/soufiane_11)
-
-# We have a goal to complete 1000 member in discord.
-# [Join Discord](https://discord.gg/dcm4TNtbGQ)
-
 # Framework Support
 ## [QBCore](https://github.com/qbcore-framework) | [ESX](https://github.com/esx-framework)
+
 # SF Camera Security
 For all support questions, ask in our [Discord](https://discord.gg/dcm4TNtbGQ) support chat. Do not create issues if you need help. Issues are for bug reporting and new features only.
 
@@ -292,4 +288,4 @@ vpn = {name = 'vpn', label = 'VPN Router', weight = 1000, type = 'item', image =
 ```language
 screwdriverset               = { name = 'screwdriverset', label = 'Toolkit', weight = 1000, type = 'item', image = 'screwdriverset.png', unique = false, useable = false, shouldClose = false, combinable = nil, description = 'Very useful to screw... screws...' },
 ```
-- Final step check the **config.lua** if you want modify some config.
+## Final step check the **config.lua** if you want modify some config.
