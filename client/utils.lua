@@ -16,6 +16,10 @@ CreateThread(function()
 end)
 
 -- Functions
+
+---@param text string
+---@param type string
+---@param timer number
 function notify(text, type, timer)
     if Config.Notify == 'qb' then
         TriggerEvent('QBCore:Notify', text, type, timer or 3500)
@@ -30,6 +34,9 @@ function notify(text, type, timer)
     end
 end
 
+
+---@param text string
+---@param timer number
 function progressBar(text, timer)
     if Config.ProgressBar == 'lib' then
         lib.progressBar({duration = timer, label = text, useWhileDead = false, canCancel = false})
@@ -49,6 +56,9 @@ function progressBar(text, timer)
     end
 end
 
+
+---@param item string
+---@return table
 function getItemInfo(item)
     if Config.Inventory == 'qb-inventory' then
         return Core.Shared.Items[item]
@@ -56,6 +66,24 @@ function getItemInfo(item)
         return oxItems[item]
     elseif Config.Inventory == 'qs-inventory' then
         return qsItems[item]
+    end
+end
+
+
+---@param bool boolean
+function setInvenBusy(bool)
+    if Config.Inventory == 'qb-inventory' or Config.Inventory == 'ps-inventory' then
+        LocalPlayer.state:set('inv_busy', bool, false)
+    elseif Config.Inventory == 'ox_inventory' then
+        LocalPlayer.state:set('invBusy', bool, false)
+    elseif Config.Inventory == 'qs-inventory' then
+        exports['qs-inventory']:setInventoryDisabled(bool)
+    elseif Config.Inventory == 'codem-inventory' then
+
+        -- my be this not work
+        LocalPlayer.state:set('inv_busy', bool, false)
+        LocalPlayer.state:set('invBusy', bool, false)
+        
     end
 end
 
