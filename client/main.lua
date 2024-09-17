@@ -440,16 +440,6 @@ RegisterNetEvent('sf_camerasecurity:Client:OpenPersonalCamera',function(result, 
 end)
 
 -- Functions
-function setInvenBusy(bool)
-    if Config.Inventory == 'qb-inventory' then
-        LocalPlayer.state:set('inv_busy', bool, false)
-    elseif Config.Inventory == 'ox_inventory' then
-        LocalPlayer.state:set('invBusy', bool, false)
-    elseif Config.Inventory == 'qs-inventory' then
-        exports['qs-inventory']:setInventoryDisabled(bool)
-    end
-end
-
 function LoadingCameraObjects()
     lib.callback('sf_camerasecurity:Server:GetStaticCams', false, function(Result)
         if Result then
