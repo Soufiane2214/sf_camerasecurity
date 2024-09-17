@@ -16,11 +16,11 @@ For all support questions, ask in our [Discord](https://discord.gg/dcm4TNtbGQ) s
 - Download ZIP and UNZIP.
 - Drag and drop resource into your server files, make sure to remove -main in the folder name.
 - SQL Automatic added to your database no need to add manually.
-- add images from folder **(install/item-images)** to **(qb-inventory/html/images)**.
+- add images from folder **(install/item-images)** to **Inventory Images Location**.
 
 
 ### Be careful, if you are use ``ox_inventory`` in QBCore framework dont add items in ``qb-core`` resource, require to add items in ``ox_inventory/data/items.lua`` ONLY.
-### qb-inventory / ps-inventory
+### qb-inventory / ps-inventory / codem-inventory
 #### Add Items to **(qb-core/shared/items.lua)**
 ```language
 -- // Cameras
