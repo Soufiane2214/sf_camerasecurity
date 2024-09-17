@@ -8,8 +8,15 @@ Config = Config or {}
 
 Config.Framework = 'QBCore'     -- ESX / QBCore
 
+-- Inventory
+-- ox_inventory     (ESX/QBCore)
+-- qs-inventory     (ESX/QBCore)
+-- qb-inventory     (QBCore)
+-- codem-inventory  (ESX/QBCore)
+-- ps-inventory     (QBCore)
+Config.Inventory = 'qb-inventory'
+
 -- Resources
-Config.Inventory = 'qb-inventory'       -- ox_inventory / qs-inventory / qb-inventory   (Note: dont use qb-inventory if your framework esx please)
 Config.Target = 'qb-target'     -- ox_target / qb-target
 Config.Notify = 'lib'           -- qb / esx / lib / custom (require to add your custom notify in [sf_camerasecurity/client/utils.lua])
 Config.ProgressBar = 'lib'      -- qb / esx / lib / custom (require to add your custom progressbar in [sf_camerasecurity/client/utils.lua])
@@ -28,7 +35,7 @@ Config.DisableWifiSystem = false            -- if you want disable wifi system
 Config.TimerFixCamera = 10      -- sec (this only for jobs, no fix cam for normal camera)
 Config.EnableWifiIcon = true    -- if you are in zone wifi, is show you a icon wifi up screen
 Config.AutoRepairCameras = true -- to repair all broken camera after server restart
-Config.ScanLine = false    -- set this false if you dont want show scanline when you watch camera
+Config.ScanLine = true    -- set this false if you dont want show scanline when you watch camera
 
 -- Player camera
 Config.SignalItem = {
