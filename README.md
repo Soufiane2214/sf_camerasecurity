@@ -51,7 +51,7 @@ vpn = {name = 'vpn', label = 'VPN Router', weight = 1000, type = 'item', image =
 ```
 
 ### qs-inventory
-#### Add Items to **qs-inventory\shared\item.lua**
+#### Add Items to **(qs-inventory\shared\item.lua)**
 ```language
 -- // Cameras
     ["camera_pd"] = {
